@@ -5,8 +5,12 @@ package codelala.xvc;
  */
 public interface Command {
     String UTF8 = "utf-8";
-    int MUSIC_PLAY = 0;
-    int MUSIC_PAUSE = 1;
-    int MUSIC_NEXT = 2;
-    int MUSIC_LAST = 3;
+    String MUSIC_RECORD = "music_record";
+    String MUSIC_PLAY_MODE = "music_play_mode";
+    int CLICK_PLAY = 0;
+    int CLICK_NEXT = 2;
+    int CLICK_LAST = 3;
+    int CLICK_MODE_LOOP = 4;
+    int CLICK_MODE_RANDOM = 5;
+    int CLICK_MODE_SINGLE = 6;
 }

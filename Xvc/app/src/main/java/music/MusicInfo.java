@@ -1,4 +1,4 @@
-package data;
+package music;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -12,6 +12,7 @@ public class MusicInfo {
     private static MusicInfo instance = new MusicInfo();
     private MusicInfoReadyListener mMusicInfoReadyListener;
     private final String[] mMusicItem = new String[]{Media.TITLE, Media.ALBUM, Media.ARTIST, Media.DATA};
+    private int mMusicInfoSize = mMusicItem.length;
 
     private MusicInfo(){};
 
@@ -30,17 +31,15 @@ public class MusicInfo {
 
     private final String[][] getMusicInfo(Context context){
         String[][] musicList = null;
-        String[] musicItem = new String[]{Media.TITLE, Media.ALBUM, Media.ARTIST, Media.DATA};
-        Cursor cursor = context.getContentResolver().query(Media.EXTERNAL_CONTENT_URI, musicItem, null, null, null);
+        Cursor cursor = context.getContentResolver().query(Media.EXTERNAL_CONTENT_URI, mMusicItem, null, null, null);
         if (cursor != null) {
             int len = cursor.getCount();
-            int size = musicItem.length;
-            musicList = new String[size][len];
+            musicList = new String[mMusicInfoSize][len];
             boolean notEnd = cursor.moveToFirst();
             int i = 0;
             while (notEnd) {
-                for (int j = 0; j < size; j++) {
-                    musicList[j][i] = cursor.getString(cursor.getColumnIndex(musicItem[j]));
+                for (int j = 0; j < mMusicInfoSize; j++) {
+                    musicList[j][i] = cursor.getString(cursor.getColumnIndex(mMusicItem[j]));
                 }
                 i++;
                 notEnd = cursor.moveToNext();
@@ -61,6 +60,15 @@ public class MusicInfo {
             super.onPostExecute(strings);
             mMusicInfoReadyListener.musicInfoReady(strings);
         }
+    }
+
+    public int getDataSourceIndex() {
+        for (int j = 0; j < mMusicInfoSize; j++) {
+            if (mMusicItem[j].equals(Media.DATA)) {
+                return j;
+            }
+        }
+        return mMusicInfoSize - 1;
     }
 
 

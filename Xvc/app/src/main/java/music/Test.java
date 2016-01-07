@@ -103,7 +103,7 @@ public class DataService extends Service {
         playindex=list.get(i);
         list.remove(i);
     }
-    private void next(){
+    private void next()next(){
         if(data==null||data.length==0)return;
         playindex++;
         playindex%=len;
@@ -150,7 +150,7 @@ public class DataService extends Service {
     }
     public DataService() {
     }
-    public class DataBinder extends Binder{
+
         public void clickPlay(int i){
             playindex=i;
             DataService.this.play();
