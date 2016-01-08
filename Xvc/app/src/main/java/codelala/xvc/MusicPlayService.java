@@ -22,18 +22,18 @@ public class MusicPlayService extends Service {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            mMusicController.play(msg.arg1);
+            mMusicController.clickAction(msg.arg1);
         }
     };
 
     @Override
     public void onCreate() {
         super.onCreate();
-        mMusicController.init(this);
+        mMusicController.init();
     }
 
     private class MusicBinder extends Binder {
-        public void justDo(int arg1){
+        public void justClick(int arg1){
             mHandler.sendEmptyMessage(arg1);
         }
     }
@@ -43,6 +43,5 @@ public class MusicPlayService extends Service {
     public IBinder onBind(Intent intent) {
         return mMusicBinder;
     }
-
 
 }

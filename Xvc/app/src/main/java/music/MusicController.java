@@ -1,12 +1,9 @@
 package music;
 
-import android.app.Activity;
 import android.content.Context;
 import android.media.MediaPlayer;
-
 import java.io.IOException;
 import java.util.Random;
-
 import codelala.xvc.Command;
 
 /**
@@ -14,16 +11,10 @@ import codelala.xvc.Command;
  */
 public class MusicController {
 
-    private MediaPlayer mMediaPlayer;
-    private String[][] mMusicData;
+    private MediaPlayer mMediaPlayer  = new MediaPlayer();;
     private static MusicController instance = new MusicController();
     private MusicInfo mMusicInfo = MusicInfo.getInstance();
-    private boolean mPause;
-    private String mPlayingMusicInfo;
-    private int mPlayMode;
-    private int mPlayMusicIndex;
-    private int mDataSourceArray;
-    private int mMusicInfoSize;
+    private boolean mPause = true;
 
     private MusicController(){}
 
@@ -31,125 +22,41 @@ public class MusicController {
         return instance;
     }
 
-    public void init(final Context context) {
-        mMediaPlayer = new MediaPlayer();
-        mMusicInfo.start(new MusicInfo.MusicInfoReadyListener() {
-            @Override
-            public void musicInfoReady(String[][] musicInfo) {
-                if (musicInfo != null) return;
-                mMusicData = musicInfo;
-                mPlayMode = context.getSharedPreferences(Command.MUSIC_PLAY_MODE, 0).getInt(Command.MUSIC_PLAY_MODE, Command.CLICK_MODE_LOOP);
-                mPlayingMusicInfo = context.getSharedPreferences(Command.MUSIC_RECORD, 0).getString(Command.MUSIC_RECORD, null);
-                mDataSourceArray = mMusicInfo.getDataSourceIndex();
-                mMusicInfoSize = mMusicData[mDataSourceArray].length;
-                if (mPlayingMusicInfo == null) {
-                    mPlayMusicIndex = 0;
-                    mPlayingMusicInfo = mMusicData[mDataSourceArray][mPlayMusicIndex];
-                } else {
-                    boolean available = false;
-                    for (int i = 0; i < mMusicInfoSize; i++) {
-                        if (mPlayingMusicInfo.equals(mMusicData[mDataSourceArray][i])) {
-                            mPlayMusicIndex = i;
-                            available = true;
-                            break;
-                        }
-                    }
-                    if (!available) {
-                        mPlayMusicIndex = 0;
-                        mPlayingMusicInfo = mMusicData[mDataSourceArray][mPlayMusicIndex];
-                    }
-                }
-
-            }
-        }, context);
+    public void init() {
         mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
                 mMediaPlayer.start();
+                mPause = false;
             }
         });
         mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                musicAutoPlay();
+                setDataSource(mMusicInfo.getDataSource(Command.AUTO_PLAY));
             }
         });
     }
 
-    public void play(int arg) {
-        switch (arg) {
-            case Command.CLICK_LAST:
-                musicPlayLast();
-                break;
-            case Command.CLICK_NEXT:
-                musicPlayNext();
-                break;
-            case Command.CLICK_PLAY:
-                musicPlay();
-                break;
-            default:
-                break;
-        }
-    }
-
-    private final void musicAutoPlay() {
-        switch (mPlayMode) {
-            case Command.CLICK_MODE_LOOP:
-                musicPlayNext();
-                break;
-            case Command.CLICK_MODE_RANDOM:
-                musicPlayRandom();
-                break;
-            case Command.CLICK_MODE_SINGLE:
-                musicStart();
-                break;
-            default:
-                break;
-        }
-    }
-
-    private final void musicPlayRandom() {
-        Random r = new Random();
-        mPlayMusicIndex = r.nextInt(mMusicInfoSize);
-        musicStart();
-    }
-
-    private final void musicPlayNext() {
-        mPlayMusicIndex++;
-        if (mPlayMusicIndex >= mMusicInfoSize) {
-            mPlayMusicIndex = 0;
-        }
-        musicStart();
-    }
-
-    private final void musicPlayLast() {
-        mPlayMusicIndex--;
-        if (mPlayMusicIndex < 0) {
-            mPlayMusicIndex = mMusicInfoSize - 1;
-        }
-        musicStart();
-    }
-
-    private final void musicPlay() {
-        if (mMusicData == null) return;
+    public final void clickAction(int arg) {
         if (mMediaPlayer.isPlaying()) {
             mMediaPlayer.pause();
             mPause = true;
         } else {
             if (mPause) {
                 mMediaPlayer.start();
+                mPause = false;
             } else {
-                musicStart();
+                setDataSource(mMusicInfo.getDataSource(arg));
             }
-            mPause = false;
         }
-
     }
 
-    private final void musicStart() {
+    private final void setDataSource(String dataSource) {
         mMediaPlayer.reset();
+        mPause = true;
         try {
-            mMediaPlayer.setDataSource(mMusicData[mDataSourceArray][mPlayMusicIndex]);
+            mMediaPlayer.setDataSource(dataSource);
             mMediaPlayer.prepareAsync();
         } catch (IllegalArgumentException e) {
             e.printStackTrace();

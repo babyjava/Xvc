@@ -7,6 +7,7 @@ public interface Command {
     String UTF8 = "utf-8";
     String MUSIC_RECORD = "music_record";
     String MUSIC_PLAY_MODE = "music_play_mode";
+    int AUTO_PLAY = 1;
     int CLICK_PLAY = 0;
     int CLICK_NEXT = 2;
     int CLICK_LAST = 3;
