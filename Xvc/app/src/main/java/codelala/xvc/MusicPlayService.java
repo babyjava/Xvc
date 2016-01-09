@@ -29,7 +29,7 @@ public class MusicPlayService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        mMusicController.init();
+        mMusicController.init(this);
     }
 
     private class MusicBinder extends Binder {
