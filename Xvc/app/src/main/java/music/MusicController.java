@@ -3,9 +3,14 @@ package music;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
+import android.os.Message;
+import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.Random;
+
 import codelala.xvc.Command;
+import codelala.xvc.Utils;
 
 /**
  * Created by Administrator on 2016/1/7 0007.
@@ -14,7 +19,7 @@ public class MusicController {
 
     private MediaPlayer mMediaPlayer  = new MediaPlayer();;
     private static MusicController instance = new MusicController();
-    private boolean mPause = true;
+    private boolean mIsPlaying = false;
     private String[][] mMusicList;
     private Context mContext;
     private MusicInfoReadyListener mMusicInfoReadyListener;
@@ -32,8 +37,11 @@ public class MusicController {
         return instance;
     }
 
-    public void registListener (MusicInfoReadyListener listener) {
-        mMusicInfoReadyListener = listener;
+    public interface MusicInfoReadyListener {
+        void musicInfoReady(String[][] musicInfo);
+        void musicPlayingInfo(String title, String artist, String ablum, int duration);
+        void musicPlayingStatus(boolean isPlaying);
+        void musicPlayingPosition(int position);
     }
 
     public void init(Context context) {
@@ -42,16 +50,116 @@ public class MusicController {
         mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
-                mMediaPlayer.start();
-                mPause = false;
+                doMusicStart();
             }
         });
         mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                setDataSource(MusicInfo.getDataSource(Command.AUTO_PLAY));
+                setDataSource(autoPlayDataSource());
             }
         });
+    }
+
+    public final void handleMsg(Message msg) {
+        if (msg == null) return;
+        int what = msg.what;
+        switch (what) {
+            case Command.CLICK_MODE_LOOP:
+            case Command.CLICK_MODE_SINGLE:
+            case Command.CLICK_MODE_RANDOM:
+                mPlayMode = what;
+                MusicInfo.savePlayMode(what, mContext);
+                break;
+            case Command.CLICK_PLAY_LAST:
+            case Command.CLICK_PLAY_NEXT:
+            case Command.CLICK_PLAY_PLAY:
+                doClickPlayAction(what);
+                break;
+            case Command.ACTIVITY_REGIST_LISTENER:
+                registerListener(msg.obj);
+                break;
+            case Command.ACTIVITY_UNREGIST_LISTENER:
+                unRegisterListener();
+                break;
+            case Command.TOUCH_SEEKBAR_SET_MUSIC_PLAY_POSTION:
+                break;
+        }
+    }
+
+    /*
+    public ---------------------------up
+    private --------------------------down
+    * */
+
+    private final void unRegisterListener() {
+        mMusicInfoReadyListener = null;
+    }
+
+    private final void registerListener(Object obj) {
+        if (obj != null) {
+            mMusicInfoReadyListener = (MusicInfoReadyListener) obj;
+        }
+        callBackOfMusicInfoReady();
+        if (mMediaPlayer.isPlaying()) {
+            callBackOfPlayingInfo();
+            callBackOfMusicPlayingStatus();
+        }
+    }
+
+    private final void doClickPlayAction(int arg) {
+        if (mMediaPlayer.isPlaying()) {
+            doMusicPause();
+        } else {
+            if (mIsPlaying) {
+                doMusicStart();
+            } else {
+                if (mMusicList == null) {
+
+                } else {
+                    setDataSource(clickGetDataSource(arg));
+                }
+            }
+        }
+    }
+
+    private final void callBackOfMusicPlayingStatus() {
+        if (mMusicInfoReadyListener != null) mMusicInfoReadyListener.musicPlayingStatus(mMediaPlayer.isPlaying());
+    }
+
+    private final void doMusicStart() {
+        mMediaPlayer.start();
+        mIsPlaying = true;
+        callBackOfPlayingInfo();
+        callBackOfMusicPlayingStatus();
+    }
+
+    private final void callBackOfMusicInfoReady() {
+        Utils.toast(mContext, "callBackOfMusicInfoReady");
+        if (mMusicInfoReadyListener != null && mMusicList != null) {
+            mMusicInfoReadyListener.musicInfoReady(mMusicList);
+        }
+    }
+
+    private final void callBackOfPlayingInfo() {
+        if (mMusicInfoReadyListener != null && mMusicList != null) {
+            mMusicInfoReadyListener.musicPlayingInfo(mMusicList[0][mPlayMusicIndex],
+                    mMusicList[1][mPlayMusicIndex],
+                    mMusicList[2][mPlayMusicIndex],
+                    getDuration());
+        }
+    }
+
+    private final int getDuration() {
+        int d = mMediaPlayer.getDuration();
+        return ((d < 1) ? 240 : d);
+    }
+
+    private final void doMusicPause() {
+        mMediaPlayer.pause();
+        mIsPlaying = false;
+        callBackOfMusicPlayingStatus();
+        MusicInfo.savePlayingMusicInfo(mContext, mMusicList[mDataSourceArray][mPlayMusicIndex]);
     }
 
     private final class DataTask extends AsyncTask<Void, Void, Void> {
@@ -65,27 +173,14 @@ public class MusicController {
         @Override
         protected void onPostExecute(Void str) {
             super.onPostExecute(str);
-            mMusicInfoReadyListener.musicInfoReady(mMusicList);
-        }
-    }
-
-    public final void clickAction(int arg) {
-        if (mMediaPlayer.isPlaying()) {
-            mMediaPlayer.pause();
-            mPause = true;
-        } else {
-            if (mPause) {
-                mMediaPlayer.start();
-                mPause = false;
-            } else {
-                setDataSource(MusicInfo.getDataSource(arg));
-            }
+            callBackOfMusicInfoReady();
         }
     }
 
     private final void setDataSource(String dataSource) {
         mMediaPlayer.reset();
-        mPause = true;
+        mIsPlaying = false;
+        callBackOfMusicPlayingStatus();
         try {
             mMediaPlayer.setDataSource(dataSource);
             mMediaPlayer.prepareAsync();
@@ -100,15 +195,12 @@ public class MusicController {
         }
     }
 
-    public interface MusicInfoReadyListener{
-        void musicInfoReady(String[][] musicInfo);
-        void musicPlayingInfo(String title, String artist, String ablum);
-    }
-
     private final void initFirstPlayInfo() {
+        if (mMusicList == null) return;
         mPlayingMusicInfo = MusicInfo.getPlayingMusicInfo(mContext);
         mDataSourceArray = MusicInfo.getDataSourceArray();
         mMusicListLength = mMusicList[mDataSourceArray].length;
+        mPlayMode = MusicInfo.getPlayMode(mContext);
         if (mPlayingMusicInfo != null) {
             for (int i = 0; i < mMusicListLength; i++) {
                 if (mPlayingMusicInfo.equals(mMusicList[mDataSourceArray][i])) {
@@ -120,5 +212,52 @@ public class MusicController {
             mPlayMusicIndex = 0;
             mPlayingMusicInfo = mMusicList[mDataSourceArray][mPlayMusicIndex];
         }
+    }
+
+    private final String clickGetDataSource(int arg) {
+        switch (arg) {
+            case Command.CLICK_PLAY_LAST:
+                return mMusicList[mDataSourceArray][getLastIndex()];
+            case Command.CLICK_PLAY_NEXT:
+                return mMusicList[mDataSourceArray][getNextIndex()];
+            case Command.CLICK_PLAY_PLAY:
+                return mMusicList[mDataSourceArray][mPlayMusicIndex];
+            default:
+                return mMusicList[mDataSourceArray][mPlayMusicIndex];
+        }
+    }
+
+    private final String autoPlayDataSource() {
+        switch (mPlayMode) {
+            case Command.CLICK_MODE_LOOP:
+                return mMusicList[mDataSourceArray][getNextIndex()];
+            case Command.CLICK_MODE_RANDOM:
+                return mMusicList[mDataSourceArray][getRandomIndex()];
+            case Command.CLICK_MODE_SINGLE:
+                return mMusicList[mDataSourceArray][mPlayMusicIndex];
+            default:
+                return mMusicList[mDataSourceArray][mPlayMusicIndex];
+        }
+    }
+
+    private final int getRandomIndex() {
+        Random r = new Random();
+        return r.nextInt(mMusicListLength);
+    }
+
+    private final int getLastIndex() {
+        mPlayMusicIndex--;
+        if (mPlayMusicIndex < 0) {
+            mPlayMusicIndex = mMusicListLength - 1;
+        }
+        return mPlayMusicIndex;
+    }
+
+    private final int getNextIndex() {
+        mPlayMusicIndex++;
+        if (mPlayMusicIndex >= mMusicListLength) {
+            mPlayMusicIndex = 0;
+        }
+        return mPlayMusicIndex;
     }
 }

@@ -15,18 +15,16 @@ public final class MusicInfo {
     private final static String[] mMusicItem = new String[]{Media.TITLE, Media.ALBUM, Media.ARTIST, Media.DATA};
     private final static int mMusicItemCount = mMusicItem.length;
 
-    private static int mPlayMode;
-    private static int mDataSourceArray;
-    private static int mMusicListLength;
-    private static int mPlayMusicIndex;
-    private static String mPlayingMusicInfo;
-
     public final static String[][] crateMusicArray(Context context){
         String[][] musicArray = null;
         Cursor cursor = context.getContentResolver().query(Media.EXTERNAL_CONTENT_URI, mMusicItem, null, null, null);
         if (cursor != null) {
-            mMusicListLength = cursor.getCount();
-            musicArray = new String[mMusicItemCount][mMusicListLength];
+            int len = cursor.getCount();
+            if (len < 1) {
+                cursor.close();
+                return null;
+            }
+            musicArray = new String[mMusicItemCount][len];
             boolean notEnd = cursor.moveToFirst();
             int i = 0;
             while (notEnd) {
@@ -37,28 +35,8 @@ public final class MusicInfo {
                 notEnd = cursor.moveToNext();
             }
         }
+        cursor.close();
         return musicArray;
-    }
-
-    private final static int getRandomIndex() {
-        Random r = new Random();
-        return r.nextInt(mMusicListLength);
-    }
-
-    private final static int getLastIndex() {
-        mPlayMusicIndex--;
-        if (mPlayMusicIndex < 0) {
-            mPlayMusicIndex = mMusicListLength - 1;
-        }
-        return mPlayMusicIndex;
-    }
-
-    private final static int getNextIndex() {
-        mPlayMusicIndex++;
-        if (mPlayMusicIndex >= mMusicListLength) {
-            mPlayMusicIndex = 0;
-        }
-        return mPlayMusicIndex;
     }
 
     public final static int getDataSourceArray() {
@@ -70,39 +48,15 @@ public final class MusicInfo {
         return mMusicItemCount - 1;
     }
 
-//    public final static String autoPlayDataSource() {
-//        switch (mPlayMode) {
-//            case Command.CLICK_MODE_LOOP:
-//                return mMusicList[mDataSourceArray][getNextIndex()];
-//            case Command.CLICK_MODE_RANDOM:
-//                return mMusicList[mDataSourceArray][getRandomIndex()];
-//            case Command.CLICK_MODE_SINGLE:
-//                return mMusicList[mDataSourceArray][mPlayMusicIndex];
-//            default:
-//                return mMusicList[mDataSourceArray][mPlayMusicIndex];
-//        }
-//    }
-//
-//    public final static String getDataSource(int arg) {
-//        switch (arg) {
-//            case Command.CLICK_LAST:
-//                return mMusicList[mDataSourceArray][getLastIndex()];
-//            case Command.CLICK_NEXT:
-//                return mMusicList[mDataSourceArray][getNextIndex()];
-//            case Command.CLICK_PLAY:
-//                return mMusicList[mDataSourceArray][mPlayMusicIndex];
-//            case Command.AUTO_PLAY:
-//                return autoPlayDataSource();
-//            default:
-//                return mMusicList[mDataSourceArray][mPlayMusicIndex];
-//        }
-//    }
+    public final static void savePlayingMusicInfo(Context context, String str) {
+        context.getSharedPreferences(Command.MUSIC_RECORD, 0).edit().putString(Command.MUSIC_RECORD, str).commit();
+    }
 
     public final static String getPlayingMusicInfo(Context context) {
         return context.getSharedPreferences(Command.MUSIC_RECORD, 0).getString(Command.MUSIC_RECORD, null);
     }
 
-    public final static void setPlayMode(int mode, Context context) {
+    public final static void savePlayMode(int mode, Context context) {
         context.getSharedPreferences(Command.MUSIC_PLAY_MODE, 0).edit().putInt(Command.MUSIC_PLAY_MODE, mode).commit();
     }
 

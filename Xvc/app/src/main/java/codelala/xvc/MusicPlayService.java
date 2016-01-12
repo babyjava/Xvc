@@ -7,7 +7,6 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.os.Handler;
-
 import music.MusicController;
 
 /**
@@ -15,14 +14,14 @@ import music.MusicController;
  */
 public class MusicPlayService extends Service {
 
-    private final MusicBinder mMusicBinder = new MusicBinder();
+    private MusicBinder mMusicBinder;
     private MusicController mMusicController = MusicController.getInstance();
 
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            mMusicController.clickAction(msg.arg1);
+            mMusicController.handleMsg(msg);
         }
     };
 
@@ -32,15 +31,36 @@ public class MusicPlayService extends Service {
         mMusicController.init(this);
     }
 
-    private class MusicBinder extends Binder {
-        public void justClick(int arg1){
-            mHandler.sendEmptyMessage(arg1);
+    public class MusicBinder extends Binder {
+        public void sendMsg(Object obj, int... what){
+            Message msg = mHandler.obtainMessage();
+            if (what != null) {
+                int len = what.length;
+                msg.what = (len > 0 ? what[0] : Command.SYSTEM_ERROR);
+                msg.arg1 = (len > 1 ? what[1] : Command.SYSTEM_ERROR);
+                msg.arg2 = (len > 2 ? what[2] : Command.SYSTEM_ERROR);
+            } else {
+                msg.what = Command.SYSTEM_ERROR;
+            }
+            if (obj == null) {
+                mHandler.sendEmptyMessage(msg.what);
+            } else {
+                msg.obj = obj;
+                mHandler.sendMessage(msg);
+            }
+        }
+        public void sendMsg(int what){
+            sendMsg(null, what);
+        }
+        public void sendMsg(int... what) {
+            sendMsg(null, what);
         }
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        if (mMusicBinder == null) mMusicBinder = new MusicBinder();
         return mMusicBinder;
     }
 
