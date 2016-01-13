@@ -19,7 +19,8 @@ public class MusicController {
 
     private MediaPlayer mMediaPlayer  = new MediaPlayer();;
     private static MusicController instance = new MusicController();
-    private boolean mIsPlaying = false;
+    private boolean mIsPause = true;
+    private boolean mIsInit = false;
     private String[][] mMusicList;
     private Context mContext;
     private MusicInfoReadyListener mMusicInfoReadyListener;
@@ -62,8 +63,7 @@ public class MusicController {
     }
 
     public final void handleMsg(Message msg) {
-        if (msg == null) return;
-        int what = msg.what;
+        int what = (msg == null?Command.SYSTEM_ERROR:msg.what);
         switch (what) {
             case Command.CLICK_MODE_LOOP:
             case Command.CLICK_MODE_SINGLE:
@@ -73,6 +73,8 @@ public class MusicController {
                 break;
             case Command.CLICK_PLAY_LAST:
             case Command.CLICK_PLAY_NEXT:
+                setDataSource(clickGetDataSource(what));
+                break;
             case Command.CLICK_PLAY_PLAY:
                 doClickPlayAction(what);
                 break;
@@ -83,6 +85,7 @@ public class MusicController {
                 unRegisterListener();
                 break;
             case Command.TOUCH_SEEKBAR_SET_MUSIC_PLAY_POSTION:
+                mMediaPlayer.seekTo(msg.arg1 > -1?msg.arg1:0);
                 break;
         }
     }
@@ -111,11 +114,10 @@ public class MusicController {
         if (mMediaPlayer.isPlaying()) {
             doMusicPause();
         } else {
-            if (mIsPlaying) {
+            if (mIsInit && mIsPause) {
                 doMusicStart();
             } else {
                 if (mMusicList == null) {
-
                 } else {
                     setDataSource(clickGetDataSource(arg));
                 }
@@ -128,8 +130,9 @@ public class MusicController {
     }
 
     private final void doMusicStart() {
+        mIsInit = true;
         mMediaPlayer.start();
-        mIsPlaying = true;
+        mIsPause = false;
         callBackOfPlayingInfo();
         callBackOfMusicPlayingStatus();
     }
@@ -152,12 +155,12 @@ public class MusicController {
 
     private final int getDuration() {
         int d = mMediaPlayer.getDuration();
-        return ((d < 1) ? 240 : d);
+        return ((d < 0) ? 240 : d);
     }
 
     private final void doMusicPause() {
         mMediaPlayer.pause();
-        mIsPlaying = false;
+        mIsPause = true;
         callBackOfMusicPlayingStatus();
         MusicInfo.savePlayingMusicInfo(mContext, mMusicList[mDataSourceArray][mPlayMusicIndex]);
     }
@@ -179,8 +182,7 @@ public class MusicController {
 
     private final void setDataSource(String dataSource) {
         mMediaPlayer.reset();
-        mIsPlaying = false;
-        callBackOfMusicPlayingStatus();
+        mIsPause = false;
         try {
             mMediaPlayer.setDataSource(dataSource);
             mMediaPlayer.prepareAsync();

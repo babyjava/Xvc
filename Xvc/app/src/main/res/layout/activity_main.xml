@@ -5,6 +5,27 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context="codelala.xvc.MainActivity">
+    <TextView
+        android:id="@+id/play_title"
+        android:layout_above="@+id/play_seekbar"
+        android:layout_margin="@dimen/activity_horizontal_margin"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/play_artist"
+        android:layout_above="@+id/play_seekbar"
+        android:layout_margin="@dimen/activity_horizontal_margin"
+        android:layout_toRightOf="@id/play_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/play_album"
+        android:layout_above="@+id/play_seekbar"
+        android:layout_margin="@dimen/activity_horizontal_margin"
+        android:layout_toLeftOf="@id/play_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
     <SeekBar
         android:id="@+id/play_seekbar"
         android:layout_above="@+id/play_bar"

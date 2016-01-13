@@ -52,8 +52,8 @@ public class MusicPlayService extends Service {
         public void sendMsg(int what){
             sendMsg(null, what);
         }
-        public void sendMsg(int... what) {
-            sendMsg(null, what);
+        public void sendMsg(int what, int arg1) {
+            sendMsg(null, what, arg1);
         }
     }
 

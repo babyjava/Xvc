@@ -21,7 +21,7 @@ public final class Utils {
     }
 
     public final static void toast(Context context, String str) {
-        if (DEBUG) Toast.makeText(context, str, Toast.LENGTH_LONG).show();
+        if (DEBUG) Toast.makeText(context, str, Toast.LENGTH_SHORT).show();
     }
 
 }
