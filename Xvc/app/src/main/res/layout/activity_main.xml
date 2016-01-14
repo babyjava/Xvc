@@ -5,27 +5,12 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context="codelala.xvc.MainActivity">
-    <TextView
-        android:id="@+id/play_title"
+
+    <include layout="@layout/play_info"
         android:layout_above="@+id/play_seekbar"
-        android:layout_margin="@dimen/activity_horizontal_margin"
-        android:layout_centerHorizontal="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <TextView
-        android:id="@+id/play_artist"
-        android:layout_above="@+id/play_seekbar"
-        android:layout_margin="@dimen/activity_horizontal_margin"
-        android:layout_toRightOf="@id/play_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <TextView
-        android:id="@+id/play_album"
-        android:layout_above="@+id/play_seekbar"
-        android:layout_margin="@dimen/activity_horizontal_margin"
-        android:layout_toLeftOf="@id/play_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
     <SeekBar
         android:id="@+id/play_seekbar"
         android:layout_above="@+id/play_bar"
@@ -33,28 +18,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <RelativeLayout
+    <include layout="@layout/play_bar"
         android:id="@+id/play_bar"
-        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <ImageView
-            android:layout_toLeftOf="@+id/play_play"
-            android:id="@+id/play_last"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/last"/>
-        <ImageView
-            android:layout_centerHorizontal="true"
-            android:id="@+id/play_play"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/pause"/>
-        <ImageView
-            android:layout_toRightOf="@+id/play_play"
-            android:id="@+id/play_next"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/next"/>
-    </RelativeLayout>
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"/>
 </RelativeLayout>

@@ -17,7 +17,8 @@ public class MainActivity extends Activity{
 
     private ServiceConnection mServiceConnection;
     private MusicPlayService.MusicBinder mMusicBinder;
-    private ImageView mPlayView;
+    private boolean mIsTouchSeekBar = false;
+    private boolean mIsPlaying = false;
     private SeekBar mMusicSeekBar;
     private SparseArray<ImageView> mPlayViewArray = new SparseArray<>();
     private SparseArray<TextView> mPlayTextArray = new SparseArray<>();
@@ -33,11 +34,14 @@ public class MainActivity extends Activity{
             mPlayTextArray.get(R.id.play_title).setText(title);
             mPlayTextArray.get(R.id.play_album).setText(ablum);
             mPlayTextArray.get(R.id.play_artist).setText(artist);
+            mPlayTextArray.get(R.id.play_time).setText(Utils.formatMusicTime(duration));
         }
 
         @Override
-        public void musicPlayingStatus(boolean isPlaying) {
+        public void musicPlayingStatus(boolean isPlaying, int duration) {
+            mIsPlaying = isPlaying;
             mPlayViewArray.get(R.id.play_play).setImageResource(isPlaying ? R.drawable.playing : R.drawable.pause);
+            runSeekBar(duration);
         }
         @Override
         public void musicPlayingPosition(int position) {
@@ -83,7 +87,7 @@ public class MainActivity extends Activity{
             tmp.setOnClickListener(mClickListener);
             mPlayViewArray.append(ids[i], tmp);
         }
-        ids = new int[]{R.id.play_title, R.id.play_album, R.id.play_artist};
+        ids = new int[]{R.id.play_title, R.id.play_album, R.id.play_artist, R.id.play_time};
         len = ids.length;
         for (int i = 0; i < len; i++) {
             TextView tmp = (TextView) findViewById(ids[i]);
@@ -93,17 +97,31 @@ public class MainActivity extends Activity{
         mMusicSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                //dragseekbar = false;
+                mIsTouchSeekBar = false;
                 mMusicBinder.sendMsg(Command.TOUCH_SEEKBAR_SET_MUSIC_PLAY_POSTION, seekBar.getProgress());
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                //dragseekbar=true;
+                mIsTouchSeekBar = true;
             }
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             }
         });
+    }
+
+    private final void runSeekBar(int duration) {
+        mMusicSeekBar.setMax(duration);
+        mMusicSeekBar.setProgress(0);
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                mMusicSeekBar.setProgress(100 + mMusicSeekBar.getProgress());
+                mMusicSeekBar.postDelayed(this, 100);
+                if (!mIsPlaying) mMusicSeekBar.removeCallbacks(this);
+            }
+        };
+        mMusicSeekBar.post(r);
     }
 
     private final void serviceConnect() {

@@ -41,7 +41,7 @@ public class MusicController {
     public interface MusicInfoReadyListener {
         void musicInfoReady(String[][] musicInfo);
         void musicPlayingInfo(String title, String artist, String ablum, int duration);
-        void musicPlayingStatus(boolean isPlaying);
+        void musicPlayingStatus(boolean isPlaying, int duration);
         void musicPlayingPosition(int position);
     }
 
@@ -126,7 +126,7 @@ public class MusicController {
     }
 
     private final void callBackOfMusicPlayingStatus() {
-        if (mMusicInfoReadyListener != null) mMusicInfoReadyListener.musicPlayingStatus(mMediaPlayer.isPlaying());
+        if (mMusicInfoReadyListener != null) mMusicInfoReadyListener.musicPlayingStatus(mMediaPlayer.isPlaying(), getDuration());
     }
 
     private final void doMusicStart() {

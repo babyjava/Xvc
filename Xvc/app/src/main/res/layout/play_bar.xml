@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <ImageView
+        android:layout_toLeftOf="@+id/play_play"
+        android:id="@+id/play_last"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/last"/>
+    <ImageView
+        android:layout_centerHorizontal="true"
+        android:id="@+id/play_play"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/pause"/>
+    <ImageView
+        android:layout_toRightOf="@+id/play_play"
+        android:id="@+id/play_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/next"/>
+</RelativeLayout>

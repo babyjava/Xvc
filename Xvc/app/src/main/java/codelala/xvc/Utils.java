@@ -24,4 +24,24 @@ public final class Utils {
         if (DEBUG) Toast.makeText(context, str, Toast.LENGTH_SHORT).show();
     }
 
+    public final static String formatMusicTime(int duration) {
+        duration = duration/1000; //seconds
+        String min, ss;
+        int sec = (int) Math.ceil(duration%60);
+        if (sec == 0) {
+            ss = "00";
+        } else {
+            ss = String.valueOf(sec);
+            if (ss.length() == 1) {
+                ss = "0" + ss;
+            }
+        }
+        if (duration > 60) {
+            min = String.valueOf((int) Math.floor(duration/60)) + ":";
+        } else {
+            min = "00:";
+        }
+        return (min + ss);
+    }
+
 }
