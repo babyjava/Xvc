@@ -5,8 +5,14 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context="codelala.xvc.MainActivity">
+    <FrameLayout
+        android:id="@+id/play_content"
+        android:layout_above="@+id/play_info"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
     <include layout="@layout/play_info"
+        android:id="@+id/play_info"
         android:layout_above="@+id/play_seekbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>

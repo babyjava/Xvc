@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import java.util.Random;
+
 /**
  * Created by Administrator on 2016/1/10 0010.
  */
@@ -42,6 +44,27 @@ public final class Utils {
             min = "00:";
         }
         return (min + ss);
+    }
+
+    public final static int getRandomIndex(int len) {
+        Random r = new Random();
+        return r.nextInt(len);
+    }
+
+    public final static int getLastIndex(int cur, int len) {
+        cur--;
+        if (cur < 0) {
+            cur = len - 1;
+        }
+        return cur;
+    }
+
+    public final static int getNextIndex(int cur, int len) {
+        cur++;
+        if (cur >= len) {
+            cur = 0;
+        }
+        return cur;
     }
 
 }

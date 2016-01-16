@@ -7,134 +7,62 @@ import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.SparseArray;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.SeekBar;
+import view.MusicPlayBar;
+import view.MusicPlayingInfo;
+import view.MusicSeekBar;
 
 public class MainActivity extends Activity{
 
     private ServiceConnection mServiceConnection;
-    private MusicPlayService.MusicBinder mMusicBinder;
-    private boolean mIsTouchSeekBar = false;
-    private boolean mIsPlaying = false;
-    private SeekBar mMusicSeekBar;
-    private SparseArray<ImageView> mPlayViewArray = new SparseArray<>();
-    private SparseArray<TextView> mPlayTextArray = new SparseArray<>();
+    private MusicBinder mMusicBinder;
+    private MusicPlayBar mMusicPlayBar;
+    private MusicPlayingInfo mMusicPlayingInfo;
+    private MusicSeekBar mMusicSeekBar;
 
-    public music.MusicController.MusicInfoReadyListener mListener = new music.MusicController.MusicInfoReadyListener() {
+    private final void showMusicList(String[][] musicInfo) {
+        if(musicInfo == null) {
 
-        @Override
-        public void musicInfoReady(String[][] musicInfo) {
-        }
-
-        @Override
-        public void musicPlayingInfo(String title, String artist, String ablum, int duration) {
-            mPlayTextArray.get(R.id.play_title).setText(title);
-            mPlayTextArray.get(R.id.play_album).setText(ablum);
-            mPlayTextArray.get(R.id.play_artist).setText(artist);
-            mPlayTextArray.get(R.id.play_time).setText(Utils.formatMusicTime(duration));
-        }
-
-        @Override
-        public void musicPlayingStatus(boolean isPlaying, int duration) {
-            mIsPlaying = isPlaying;
-            mPlayViewArray.get(R.id.play_play).setImageResource(isPlaying ? R.drawable.playing : R.drawable.pause);
-            runSeekBar(duration);
-        }
-        @Override
-        public void musicPlayingPosition(int position) {
+        } else {
 
         }
-    };
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         serviceConnect();
-        init();
     }
 
-    private final void doOnClick(int id) {
-        if (mMusicBinder == null) return;
-        switch (id) {
-            case R.id.play_last:
-                mMusicBinder.sendMsg(Command.CLICK_PLAY_LAST);
-                break;
-            case R.id.play_next:
-                mMusicBinder.sendMsg(Command.CLICK_PLAY_NEXT);
-                break;
-            case R.id.play_play:
-                mMusicBinder.sendMsg(Command.CLICK_PLAY_PLAY);
-                break;
-        }
-    }
-
-    private final View.OnClickListener mClickListener = new View.OnClickListener(){
+    private final CallBack.MusicInfoReady mMusicInfoReady = new CallBack.MusicInfoReady() {
         @Override
-        public void onClick(View v) {
-            doOnClick(v == null?Command.SYSTEM_ERROR:v.getId());
+        public void musicInfoReady(String[][] musicInfo) {
+            Utils.toast(MainActivity.this, "musicInfoReady");
+            showMusicList(musicInfo);
         }
     };
 
     private final void init() {
-        int[] ids = new int[]{R.id.play_play, R.id.play_next, R.id.play_last};
-        int len = ids.length;
-        for (int i = 0; i < len; i++) {
-            ImageView tmp = (ImageView) findViewById(ids[i]);
-            tmp.setOnClickListener(mClickListener);
-            mPlayViewArray.append(ids[i], tmp);
+        if (mMusicPlayBar == null) {
+            mMusicPlayBar = new MusicPlayBar(findViewById(R.id.play_bar), mMusicBinder);
+            mMusicPlayingInfo = new MusicPlayingInfo(findViewById(R.id.play_info), mMusicBinder);
+            mMusicSeekBar = new MusicSeekBar(findViewById(R.id.play_seekbar), mMusicBinder);
         }
-        ids = new int[]{R.id.play_title, R.id.play_album, R.id.play_artist, R.id.play_time};
-        len = ids.length;
-        for (int i = 0; i < len; i++) {
-            TextView tmp = (TextView) findViewById(ids[i]);
-            mPlayTextArray.append(ids[i], tmp);
-        }
-        mMusicSeekBar = (SeekBar) findViewById(R.id.play_seekbar);
-        mMusicSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                mIsTouchSeekBar = false;
-                mMusicBinder.sendMsg(Command.TOUCH_SEEKBAR_SET_MUSIC_PLAY_POSTION, seekBar.getProgress());
-            }
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                mIsTouchSeekBar = true;
-            }
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            }
-        });
-    }
-
-    private final void runSeekBar(int duration) {
-        mMusicSeekBar.setMax(duration);
-        mMusicSeekBar.setProgress(0);
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                mMusicSeekBar.setProgress(100 + mMusicSeekBar.getProgress());
-                mMusicSeekBar.postDelayed(this, 100);
-                if (!mIsPlaying) mMusicSeekBar.removeCallbacks(this);
-            }
-        };
-        mMusicSeekBar.post(r);
     }
 
     private final void serviceConnect() {
         mServiceConnection = new ServiceConnection() {
             @Override
             public void onServiceDisconnected(ComponentName name) {
+
             }
 
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 Utils.toast(MainActivity.this, "onServiceConnected");
-                mMusicBinder = (MusicPlayService.MusicBinder) service;
-                mMusicBinder.sendMsg(mListener, Command.ACTIVITY_REGIST_LISTENER);
+                mMusicBinder = (MusicBinder) service;
+                mMusicBinder.sendMsg(mMusicInfoReady, Command.REGISTER_INFO_READY);
+                init();
             }
         };
         bindService(new Intent(MainActivity.this, MusicPlayService.class), mServiceConnection, BIND_AUTO_CREATE);
@@ -148,10 +76,7 @@ public class MainActivity extends Activity{
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mMusicBinder.sendMsg(Command.ACTIVITY_UNREGIST_LISTENER);
         unbindService(mServiceConnection);
-        mMusicBinder = null;
-        mServiceConnection = null;
     }
 
 }
