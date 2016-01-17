@@ -148,7 +148,7 @@ public class MusicController {
         if (mMusicInfoReady == null && obj != null) {
             mMusicInfoReady = (CallBack.MusicInfoReady) obj;
         }
-        if (mMusicInfoReady != null && mMusicList != null) {
+        if (mMusicInfoReady != null/* && mMusicList != null*/) {
             mMusicInfoReady.musicInfoReady(mMusicList);
         }
     }

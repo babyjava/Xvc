@@ -1,31 +1,34 @@
 package codelala.xvc;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
+
+import java.util.ArrayList;
+
+import fragment.MusicListFragment;
+import fragment.MusicLyricFragment;
 import view.MusicPlayBar;
 import view.MusicPlayingInfo;
 import view.MusicSeekBar;
 
-public class MainActivity extends Activity{
+public class MainActivity extends FragmentActivity {
 
     private ServiceConnection mServiceConnection;
     private MusicBinder mMusicBinder;
     private MusicPlayBar mMusicPlayBar;
     private MusicPlayingInfo mMusicPlayingInfo;
     private MusicSeekBar mMusicSeekBar;
-
-    private final void showMusicList(String[][] musicInfo) {
-        if(musicInfo == null) {
-
-        } else {
-
-        }
-    }
+    private ViewPager mViewPager;
+    private MyAdapter mMyAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +41,17 @@ public class MainActivity extends Activity{
         @Override
         public void musicInfoReady(String[][] musicInfo) {
             Utils.toast(MainActivity.this, "musicInfoReady");
-            showMusicList(musicInfo);
-        }
+//            if(musicInfo == null) {
+//
+//            } else {
+                if (mViewPager == null) {
+                    mViewPager = (ViewPager) findViewById(R.id.play_viewpager);
+                    mMyAdapter = new MyAdapter(getSupportFragmentManager());
+                    mViewPager.setAdapter(mMyAdapter);
+                }
+                //mMyAdapter.updateFragment(musicInfo);
+            }
+//        }
     };
 
     private final void init() {
@@ -77,6 +89,32 @@ public class MainActivity extends Activity{
     protected void onDestroy() {
         super.onDestroy();
         unbindService(mServiceConnection);
+    }
+
+    private final static class MyAdapter extends FragmentPagerAdapter {
+        ArrayList<Fragment> mList;
+        MusicListFragment mMusicListFragment;
+        public MyAdapter(FragmentManager fm) {
+            super(fm);
+            mList = new ArrayList<>(2);
+            mMusicListFragment = new MusicListFragment();
+            mList.add(mMusicListFragment);
+            mList.add(new MusicLyricFragment());
+        }
+
+        public void updateFragment(String[][] musicInfo) {
+            mMusicListFragment.setArguments(musicInfo);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return mList.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return mList == null?0:mList.size();
+        }
     }
 
 }
