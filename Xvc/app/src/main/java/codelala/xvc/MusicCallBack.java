@@ -3,9 +3,9 @@ package codelala.xvc;
 /**
  * Created by Administrator on 2016/1/16 0016.
  */
-public class CallBack {
+public class MusicCallBack {
 
-    private CallBack(){};
+    private MusicCallBack(){};
 
     public interface MusicPlayingStatus {
         void musicPlayingStatus(boolean isPlaying);

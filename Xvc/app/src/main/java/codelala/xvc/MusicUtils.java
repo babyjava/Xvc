@@ -10,7 +10,7 @@ import java.util.Random;
 /**
  * Created by Administrator on 2016/1/10 0010.
  */
-public final class Utils {
+public final class MusicUtils {
 
     private final static boolean DEBUG = true;
 

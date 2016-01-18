@@ -1,40 +1,54 @@
 package view;
 
+import android.content.Context;
+import android.util.AttributeSet;
 import android.util.SparseArray;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
-import codelala.xvc.CallBack;
-import codelala.xvc.Command;
+import android.widget.RelativeLayout;
 import codelala.xvc.MusicBinder;
+import codelala.xvc.MusicCallBack;
+import codelala.xvc.MusicCommand;
 import codelala.xvc.R;
 
 /**
- * Created by Administrator on 2016/1/16 0016.
+ * Created by Administrator on 2016/1/18 0018.
  */
-public class MusicPlayBar {
+public class MusicPlayBar extends RelativeLayout {
     private final int[] mRes = new int[]{R.id.play_play, R.id.play_next, R.id.play_last};
     private final int mResLen = mRes.length;
-    private SparseArray<ImageView> mPlayViewArray = new SparseArray<>(mResLen);
+    private final SparseArray<ImageView> mPlayViewArray = new SparseArray<>(mResLen);
     private MusicBinder mMusicBinder;
 
-    public MusicPlayBar(View view, MusicBinder musicBinder) {
-        init(view);
-        mMusicBinder = musicBinder;
-        mMusicBinder.sendMsg(mMusicPlayingStatus, Command.REGISTER_PLAYING_STATUS);
+    public MusicPlayBar(Context context) {
+        super(context);
+        init(context);
     }
 
-    private CallBack.MusicPlayingStatus mMusicPlayingStatus = new CallBack.MusicPlayingStatus() {
-        @Override
-        public void musicPlayingStatus(boolean isPlaying) {
-            if (mPlayViewArray == null) return;
-            mPlayViewArray.get(R.id.play_play).setImageResource(isPlaying ? R.drawable.playing : R.drawable.pause);
+    public void setBinder(MusicBinder musicBinder) {
+        if (mMusicBinder == null) {
+            mMusicBinder = musicBinder;
+            mMusicBinder.sendMsg(mMusicPlayingStatus, MusicCommand.REGISTER_PLAYING_STATUS);
         }
-    };
+    }
+
+    public MusicPlayBar(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init(context);
+    }
 
     private final View.OnClickListener mClickListener = new View.OnClickListener(){
         @Override
         public void onClick(View v) {
-            doOnClick(v == null? Command.SYSTEM_ERROR:v.getId());
+            doOnClick(v.getId());
+        }
+    };
+
+    private final MusicCallBack.MusicPlayingStatus mMusicPlayingStatus = new MusicCallBack.MusicPlayingStatus() {
+        @Override
+        public void musicPlayingStatus(boolean isPlaying) {
+            mPlayViewArray.get(R.id.play_play).setImageResource(isPlaying ? R.drawable.playing : R.drawable.pause);
         }
     };
 
@@ -42,23 +56,25 @@ public class MusicPlayBar {
         if (mMusicBinder == null) return;
         switch (id) {
             case R.id.play_last:
-                mMusicBinder.sendMsg(Command.CLICK_PLAY_LAST);
+                mMusicBinder.sendMsg(MusicCommand.CLICK_PLAY_LAST);
                 break;
             case R.id.play_next:
-                mMusicBinder.sendMsg(Command.CLICK_PLAY_NEXT);
+                mMusicBinder.sendMsg(MusicCommand.CLICK_PLAY_NEXT);
                 break;
             case R.id.play_play:
-                mMusicBinder.sendMsg(Command.CLICK_PLAY_PLAY);
+                mMusicBinder.sendMsg(MusicCommand.CLICK_PLAY_PLAY);
                 break;
         }
     }
 
-    private final void init(View view) {
+    private final void init(Context context) {
+        View view = LayoutInflater.from(context).inflate(R.layout.play_bar, null);
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        addView(view, lp);
         for (int i = 0; i < mResLen; i++) {
             ImageView tmp = (ImageView) view.findViewById(mRes[i]);
             tmp.setOnClickListener(mClickListener);
             mPlayViewArray.append(mRes[i], tmp);
         }
     }
-
 }

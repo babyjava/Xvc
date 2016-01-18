@@ -20,9 +20,9 @@ public class MusicListFragment extends Fragment {
 
     public void setArguments(String[][] musicList) {
         mMusicList = musicList;
-//        if (mMyAdapter != null) {
-//            mMyAdapter.notifyDataSetChanged();
-//        }
+        if (mMyAdapter != null && musicList != null) {
+            mMyAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -71,7 +71,7 @@ public class MusicListFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return mMusicList == null?100:mMusicList.length;
+            return mMusicList == null?0:mMusicList.length;
         }
     }
 

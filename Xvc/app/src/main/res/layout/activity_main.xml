@@ -4,29 +4,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="codelala.xvc.MainActivity">
+    tools:context=".MusicMainActivity">
     <android.support.v4.view.ViewPager
         android:id="@+id/play_viewpager"
         android:layout_above="@+id/play_info"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <include layout="@layout/play_info"
+    <view.MusicPlayingInfo
         android:id="@+id/play_info"
         android:layout_above="@+id/play_seekbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <SeekBar
+    <view.MusicSeekBar
         android:id="@+id/play_seekbar"
         android:layout_above="@+id/play_bar"
-        android:layout_margin="@dimen/activity_horizontal_margin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <include layout="@layout/play_bar"
+    <view.MusicPlayBar
         android:id="@+id/play_bar"
+        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"/>
+        android:layout_height="wrap_content"/>
 </RelativeLayout>

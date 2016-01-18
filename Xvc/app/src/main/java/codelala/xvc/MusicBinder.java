@@ -28,11 +28,11 @@ public class MusicBinder extends Binder {
         Message msg = mHandler.obtainMessage();
         if (what != null) {
             int len = what.length;
-            msg.what = (len > 0 ? what[0] : Command.SYSTEM_ERROR);
-            msg.arg1 = (len > 1 ? what[1] : Command.SYSTEM_ERROR);
-            msg.arg2 = (len > 2 ? what[2] : Command.SYSTEM_ERROR);
+            msg.what = (len > 0 ? what[0] : MusicCommand.SYSTEM_ERROR);
+            msg.arg1 = (len > 1 ? what[1] : MusicCommand.SYSTEM_ERROR);
+            msg.arg2 = (len > 2 ? what[2] : MusicCommand.SYSTEM_ERROR);
         } else {
-            msg.what = Command.SYSTEM_ERROR;
+            msg.what = MusicCommand.SYSTEM_ERROR;
         }
         if (obj == null) {
             mHandler.sendEmptyMessage(msg.what);

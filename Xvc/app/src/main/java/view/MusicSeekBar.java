@@ -1,28 +1,44 @@
 package view;
 
+import android.content.Context;
+import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
-import codelala.xvc.CallBack;
-import codelala.xvc.Command;
+import codelala.xvc.MusicCallBack;
+import codelala.xvc.MusicCommand;
 import codelala.xvc.MusicBinder;
+import codelala.xvc.R;
 
 /**
  * Created by Administrator on 2016/1/16 0016.
  */
-public class MusicSeekBar {
+public class MusicSeekBar extends RelativeLayout {
 
     private MusicBinder mMusicBinder;
     private SeekBar mMusicSeekBar;
     private boolean mIsPlaying;
     private boolean mIsTouchSeekBar;
 
-    public MusicSeekBar(View view, MusicBinder musicBinder) {
-        init(view);
-        mMusicBinder = musicBinder;
-        mMusicBinder.sendMsg(mMusicSeekBarStatus, Command.REGISTER_SEEKBAR_STATUS);
+    public MusicSeekBar(Context context) {
+        super(context);
+        init(context);
     }
 
-    private final CallBack.MusicSeekBarStatus mMusicSeekBarStatus = new CallBack.MusicSeekBarStatus() {
+    public MusicSeekBar(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init(context);
+    }
+
+    public void setBinder(MusicBinder musicBinder) {
+        if (mMusicBinder == null) {
+            mMusicBinder = musicBinder;
+            mMusicBinder.sendMsg(mMusicSeekBarStatus, MusicCommand.REGISTER_SEEKBAR_STATUS);
+        }
+    }
+
+    private final MusicCallBack.MusicSeekBarStatus mMusicSeekBarStatus = new MusicCallBack.MusicSeekBarStatus() {
 
         @Override
         public void musicSeekBarStatus(boolean isPlaying, int position, int time) {
@@ -45,13 +61,16 @@ public class MusicSeekBar {
         }
     };
 
-    private final void init(View view) {
-        mMusicSeekBar = (SeekBar) view;
+    private final void init(Context context) {
+        View view = LayoutInflater.from(context).inflate(R.layout.play_seekbar, null);
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        addView(view, lp);
+        mMusicSeekBar = (SeekBar) view.findViewById(R.id.play_seekbar);
         mMusicSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 mIsTouchSeekBar = false;
-                mMusicBinder.sendMsg(Command.TOUCH_SEEKBAR_SET_MUSIC_PLAY_POSTION, seekBar.getProgress());
+                mMusicBinder.sendMsg(MusicCommand.TOUCH_SEEKBAR_SET_MUSIC_PLAY_POSTION, seekBar.getProgress());
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {

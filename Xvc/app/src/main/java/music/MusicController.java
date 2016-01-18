@@ -4,14 +4,12 @@ import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Message;
-import android.widget.Toast;
 
 import java.io.IOException;
-import java.util.Random;
 
-import codelala.xvc.CallBack;
-import codelala.xvc.Command;
-import codelala.xvc.Utils;
+import codelala.xvc.MusicCallBack;
+import codelala.xvc.MusicCommand;
+import codelala.xvc.MusicUtils;
 
 /**
  * Created by Administrator on 2016/1/7 0007.
@@ -24,10 +22,10 @@ public class MusicController {
     private boolean mIsInit = false;
     private String[][] mMusicList;
     private Context mContext;
-    private CallBack.MusicPlayingStatus mMusicPlayingStatus;
-    private CallBack.MusicPlayingInfo mMusicPlayingInfo;
-    private CallBack.MusicSeekBarStatus mMusicSeekBarStatus;
-    private CallBack.MusicInfoReady mMusicInfoReady;
+    private MusicCallBack.MusicPlayingStatus mMusicPlayingStatus;
+    private MusicCallBack.MusicPlayingInfo mMusicPlayingInfo;
+    private MusicCallBack.MusicSeekBarStatus mMusicSeekBarStatus;
+    private MusicCallBack.MusicInfoReady mMusicInfoReady;
     private String mPlayingMusicInfo;
     private int mPlayMode;
     private int mDataSourceArray;
@@ -58,34 +56,34 @@ public class MusicController {
     }
 
     public final void handleMsg(Message msg) {
-        int what = (msg == null?Command.SYSTEM_ERROR:msg.what);
+        int what = (msg == null? MusicCommand.SYSTEM_ERROR:msg.what);
         switch (what) {
-            case Command.CLICK_MODE_LOOP:
-            case Command.CLICK_MODE_SINGLE:
-            case Command.CLICK_MODE_RANDOM:
+            case MusicCommand.CLICK_MODE_LOOP:
+            case MusicCommand.CLICK_MODE_SINGLE:
+            case MusicCommand.CLICK_MODE_RANDOM:
                 mPlayMode = what;
                 MusicInfo.savePlayMode(what, mContext);
                 break;
-            case Command.CLICK_PLAY_LAST:
-            case Command.CLICK_PLAY_NEXT:
+            case MusicCommand.CLICK_PLAY_LAST:
+            case MusicCommand.CLICK_PLAY_NEXT:
                 setDataSource(clickGetDataSource(what));
                 break;
-            case Command.CLICK_PLAY_PLAY:
+            case MusicCommand.CLICK_PLAY_PLAY:
                 doClickPlayAction(what);
                 break;
-            case Command.REGISTER_PLAYING_STATUS:
-                mMusicPlayingStatus = (CallBack.MusicPlayingStatus) msg.obj;
+            case MusicCommand.REGISTER_PLAYING_STATUS:
+                mMusicPlayingStatus = (MusicCallBack.MusicPlayingStatus) msg.obj;
                 break;
-            case Command.REGISTER_PLAYING_INFO:
+            case MusicCommand.REGISTER_PLAYING_INFO:
                 callBackOfMusicPlayingInfo(msg.obj);
                 break;
-            case Command.REGISTER_INFO_READY:
+            case MusicCommand.REGISTER_INFO_READY:
                 callBackOfMusicInfoReady(msg.obj);
                 break;
-            case Command.REGISTER_SEEKBAR_STATUS:
+            case MusicCommand.REGISTER_SEEKBAR_STATUS:
                 callBackOfMusicSeekBarStatus(msg.obj);
                 break;
-            case Command.TOUCH_SEEKBAR_SET_MUSIC_PLAY_POSTION:
+            case MusicCommand.TOUCH_SEEKBAR_SET_MUSIC_PLAY_POSTION:
                 seekTo(msg.arg1 < 0?0:msg.arg1);
                 break;
         }
@@ -106,7 +104,7 @@ public class MusicController {
 
     private final void callBackOfMusicSeekBarStatus(Object obj) {
         if (mMusicSeekBarStatus == null && obj != null) {
-            mMusicSeekBarStatus = (CallBack.MusicSeekBarStatus) obj;
+            mMusicSeekBarStatus = (MusicCallBack.MusicSeekBarStatus) obj;
         }
         if (mMusicSeekBarStatus != null && mMusicList != null) {
             mMusicSeekBarStatus.musicSeekBarStatus(isPlaying(), mMediaPlayer.getCurrentPosition(), getDuration());
@@ -146,16 +144,16 @@ public class MusicController {
 
     private final void callBackOfMusicInfoReady(Object obj) {
         if (mMusicInfoReady == null && obj != null) {
-            mMusicInfoReady = (CallBack.MusicInfoReady) obj;
+            mMusicInfoReady = (MusicCallBack.MusicInfoReady) obj;
         }
-        if (mMusicInfoReady != null/* && mMusicList != null*/) {
+        if (mMusicInfoReady != null) {
             mMusicInfoReady.musicInfoReady(mMusicList);
         }
     }
 
     private final void callBackOfMusicPlayingInfo(Object obj) {
         if (mMusicPlayingInfo == null && obj != null) {
-            mMusicPlayingInfo = (CallBack.MusicPlayingInfo) obj;
+            mMusicPlayingInfo = (MusicCallBack.MusicPlayingInfo) obj;
         }
         if (mMusicPlayingInfo != null && mMusicList != null) {
             mMusicPlayingInfo.musicPlayingInfo(mMusicList[0][mPlayMusicIndex],
@@ -232,11 +230,11 @@ public class MusicController {
     private final String clickGetDataSource(int arg) {
         if (mMusicList == null) return null;
         switch (arg) {
-            case Command.CLICK_PLAY_LAST:
-                return mMusicList[mDataSourceArray][Utils.getLastIndex(mPlayMusicIndex, mMusicListLength)];
-            case Command.CLICK_PLAY_NEXT:
-                return mMusicList[mDataSourceArray][Utils.getNextIndex(mPlayMusicIndex, mMusicListLength)];
-            case Command.CLICK_PLAY_PLAY:
+            case MusicCommand.CLICK_PLAY_LAST:
+                return mMusicList[mDataSourceArray][MusicUtils.getLastIndex(mPlayMusicIndex, mMusicListLength)];
+            case MusicCommand.CLICK_PLAY_NEXT:
+                return mMusicList[mDataSourceArray][MusicUtils.getNextIndex(mPlayMusicIndex, mMusicListLength)];
+            case MusicCommand.CLICK_PLAY_PLAY:
                 return mMusicList[mDataSourceArray][mPlayMusicIndex];
             default:
                 return mMusicList[mDataSourceArray][mPlayMusicIndex];
@@ -246,11 +244,11 @@ public class MusicController {
     private final String autoPlayDataSource() {
         if (mMusicList == null) return null;
         switch (mPlayMode) {
-            case Command.CLICK_MODE_LOOP:
-                return mMusicList[mDataSourceArray][Utils.getNextIndex(mPlayMusicIndex, mMusicListLength)];
-            case Command.CLICK_MODE_RANDOM:
-                return mMusicList[mDataSourceArray][Utils.getRandomIndex(mMusicListLength)];
-            case Command.CLICK_MODE_SINGLE:
+            case MusicCommand.CLICK_MODE_LOOP:
+                return mMusicList[mDataSourceArray][MusicUtils.getNextIndex(mPlayMusicIndex, mMusicListLength)];
+            case MusicCommand.CLICK_MODE_RANDOM:
+                return mMusicList[mDataSourceArray][MusicUtils.getRandomIndex(mMusicListLength)];
+            case MusicCommand.CLICK_MODE_SINGLE:
                 return mMusicList[mDataSourceArray][mPlayMusicIndex];
             default:
                 return mMusicList[mDataSourceArray][mPlayMusicIndex];

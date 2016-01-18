@@ -20,7 +20,7 @@ import view.MusicPlayBar;
 import view.MusicPlayingInfo;
 import view.MusicSeekBar;
 
-public class MainActivity extends FragmentActivity {
+public class MusicMainActivity extends FragmentActivity {
 
     private ServiceConnection mServiceConnection;
     private MusicBinder mMusicBinder;
@@ -37,28 +37,31 @@ public class MainActivity extends FragmentActivity {
         serviceConnect();
     }
 
-    private final CallBack.MusicInfoReady mMusicInfoReady = new CallBack.MusicInfoReady() {
+    private final MusicCallBack.MusicInfoReady mMusicInfoReady = new MusicCallBack.MusicInfoReady() {
         @Override
         public void musicInfoReady(String[][] musicInfo) {
-            Utils.toast(MainActivity.this, "musicInfoReady");
-//            if(musicInfo == null) {
-//
-//            } else {
+            MusicUtils.toast(MusicMainActivity.this, "musicInfoReady");
+            if(musicInfo == null) {
+
+            } else {
                 if (mViewPager == null) {
                     mViewPager = (ViewPager) findViewById(R.id.play_viewpager);
                     mMyAdapter = new MyAdapter(getSupportFragmentManager());
                     mViewPager.setAdapter(mMyAdapter);
                 }
-                //mMyAdapter.updateFragment(musicInfo);
+                mMyAdapter.updateFragment(musicInfo);
             }
-//        }
+        }
     };
 
     private final void init() {
         if (mMusicPlayBar == null) {
-            mMusicPlayBar = new MusicPlayBar(findViewById(R.id.play_bar), mMusicBinder);
-            mMusicPlayingInfo = new MusicPlayingInfo(findViewById(R.id.play_info), mMusicBinder);
-            mMusicSeekBar = new MusicSeekBar(findViewById(R.id.play_seekbar), mMusicBinder);
+            mMusicPlayBar = (MusicPlayBar) findViewById(R.id.play_bar);
+            mMusicPlayBar.setBinder(mMusicBinder);
+            mMusicPlayingInfo = (MusicPlayingInfo) findViewById(R.id.play_info);
+            mMusicPlayingInfo.setBinder(mMusicBinder);
+            mMusicSeekBar = (MusicSeekBar) findViewById(R.id.play_seekbar);
+            mMusicSeekBar.setBinder(mMusicBinder);
         }
     }
 
@@ -71,13 +74,13 @@ public class MainActivity extends FragmentActivity {
 
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                Utils.toast(MainActivity.this, "onServiceConnected");
+                MusicUtils.toast(MusicMainActivity.this, "onServiceConnected");
                 mMusicBinder = (MusicBinder) service;
-                mMusicBinder.sendMsg(mMusicInfoReady, Command.REGISTER_INFO_READY);
+                mMusicBinder.sendMsg(mMusicInfoReady, MusicCommand.REGISTER_INFO_READY);
                 init();
             }
         };
-        bindService(new Intent(MainActivity.this, MusicPlayService.class), mServiceConnection, BIND_AUTO_CREATE);
+        bindService(new Intent(MusicMainActivity.this, MusicPlayService.class), mServiceConnection, BIND_AUTO_CREATE);
     }
 
     @Override

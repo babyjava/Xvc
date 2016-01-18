@@ -3,8 +3,8 @@ package music;
 import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore.Audio.Media;
-import java.util.Random;
-import codelala.xvc.Command;
+
+import codelala.xvc.MusicCommand;
 
 /**
  * Created by Administrator on 2016/1/5 0005.
@@ -49,18 +49,18 @@ public final class MusicInfo {
     }
 
     public final static void savePlayingMusicInfo(Context context, String str) {
-        context.getSharedPreferences(Command.MUSIC_RECORD, 0).edit().putString(Command.MUSIC_RECORD, str).commit();
+        context.getSharedPreferences(MusicCommand.MUSIC_RECORD, 0).edit().putString(MusicCommand.MUSIC_RECORD, str).commit();
     }
 
     public final static String getPlayingMusicInfo(Context context) {
-        return context.getSharedPreferences(Command.MUSIC_RECORD, 0).getString(Command.MUSIC_RECORD, null);
+        return context.getSharedPreferences(MusicCommand.MUSIC_RECORD, 0).getString(MusicCommand.MUSIC_RECORD, null);
     }
 
     public final static void savePlayMode(int mode, Context context) {
-        context.getSharedPreferences(Command.MUSIC_PLAY_MODE, 0).edit().putInt(Command.MUSIC_PLAY_MODE, mode).commit();
+        context.getSharedPreferences(MusicCommand.MUSIC_PLAY_MODE, 0).edit().putInt(MusicCommand.MUSIC_PLAY_MODE, mode).commit();
     }
 
     public final static int getPlayMode(Context context) {
-        return context.getSharedPreferences(Command.MUSIC_PLAY_MODE, 0).getInt(Command.MUSIC_PLAY_MODE, Command.CLICK_MODE_LOOP);
+        return context.getSharedPreferences(MusicCommand.MUSIC_PLAY_MODE, 0).getInt(MusicCommand.MUSIC_PLAY_MODE, MusicCommand.CLICK_MODE_LOOP);
     }
 }
