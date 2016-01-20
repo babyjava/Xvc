@@ -1,4 +1,4 @@
-package fragment;
+package test;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import codelala.xvc.R;
 
-public class MusicListFragment extends Fragment {
+public class Test extends Fragment {
 
     private View mView;
     private RecyclerView mRecyclerView;
@@ -20,7 +20,7 @@ public class MusicListFragment extends Fragment {
 
     public void setArguments(String[][] musicList) {
         mMusicList = musicList;
-        if (mMyAdapter != null && musicList != null) {
+        if (mMyAdapter != null) {
             mMyAdapter.notifyDataSetChanged();
         }
     }

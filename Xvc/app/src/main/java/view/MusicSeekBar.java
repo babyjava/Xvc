@@ -62,10 +62,10 @@ public class MusicSeekBar extends RelativeLayout {
     };
 
     private final void init(Context context) {
-        View view = LayoutInflater.from(context).inflate(R.layout.play_seekbar, null);
+        View view = LayoutInflater.from(context).inflate(R.layout.view_music_seekbar, null);
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
         addView(view, lp);
-        mMusicSeekBar = (SeekBar) view.findViewById(R.id.play_seekbar);
+        mMusicSeekBar = (SeekBar) view.findViewById(R.id.play_seek_bar);
         mMusicSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {

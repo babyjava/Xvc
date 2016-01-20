@@ -1,34 +1,26 @@
 package codelala.xvc;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 
-import java.util.ArrayList;
-
-import fragment.MusicListFragment;
-import fragment.MusicLyricFragment;
-import view.MusicPlayBar;
-import view.MusicPlayingInfo;
+import view.MusicBody;
+import view.MusicBar;
+import view.MusicInfo;
 import view.MusicSeekBar;
 
-public class MusicMainActivity extends FragmentActivity {
+public class MusicMainActivity extends Activity {
 
     private ServiceConnection mServiceConnection;
     private MusicBinder mMusicBinder;
-    private MusicPlayBar mMusicPlayBar;
-    private MusicPlayingInfo mMusicPlayingInfo;
+    private MusicBar mMusicBar;
+    private MusicInfo mMusicInfo;
     private MusicSeekBar mMusicSeekBar;
-    private ViewPager mViewPager;
-    private MyAdapter mMyAdapter;
+    private MusicBody mMusicBody;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,24 +36,26 @@ public class MusicMainActivity extends FragmentActivity {
             if(musicInfo == null) {
 
             } else {
-                if (mViewPager == null) {
-                    mViewPager = (ViewPager) findViewById(R.id.play_viewpager);
-                    mMyAdapter = new MyAdapter(getSupportFragmentManager());
-                    mViewPager.setAdapter(mMyAdapter);
-                }
-                mMyAdapter.updateFragment(musicInfo);
+//                if (mViewPager == null) {
+//                    mViewPager = (ViewPager) findViewById(R.id.play_viewpager);
+//                    mMyAdapter = new MyAdapter(getSupportFragmentManager());
+//                    mViewPager.setAdapter(mMyAdapter);
+//                }
+//                mMyAdapter.updateFragment(musicInfo);
             }
         }
     };
 
     private final void init() {
-        if (mMusicPlayBar == null) {
-            mMusicPlayBar = (MusicPlayBar) findViewById(R.id.play_bar);
-            mMusicPlayBar.setBinder(mMusicBinder);
-            mMusicPlayingInfo = (MusicPlayingInfo) findViewById(R.id.play_info);
-            mMusicPlayingInfo.setBinder(mMusicBinder);
+        if (mMusicBar == null) {
+            mMusicBar = (MusicBar) findViewById(R.id.play_bar);
+            mMusicBar.setBinder(mMusicBinder);
+            mMusicInfo = (MusicInfo) findViewById(R.id.play_info);
+            mMusicInfo.setBinder(mMusicBinder);
             mMusicSeekBar = (MusicSeekBar) findViewById(R.id.play_seekbar);
             mMusicSeekBar.setBinder(mMusicBinder);
+            mMusicBody = (MusicBody) findViewById(R.id.play_body);
+            mMusicBody.setBinder(mMusicBinder);
         }
     }
 
@@ -94,30 +88,30 @@ public class MusicMainActivity extends FragmentActivity {
         unbindService(mServiceConnection);
     }
 
-    private final static class MyAdapter extends FragmentPagerAdapter {
-        ArrayList<Fragment> mList;
-        MusicListFragment mMusicListFragment;
-        public MyAdapter(FragmentManager fm) {
-            super(fm);
-            mList = new ArrayList<>(2);
-            mMusicListFragment = new MusicListFragment();
-            mList.add(mMusicListFragment);
-            mList.add(new MusicLyricFragment());
-        }
-
-        public void updateFragment(String[][] musicInfo) {
-            mMusicListFragment.setArguments(musicInfo);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return mList.get(position);
-        }
-
-        @Override
-        public int getCount() {
-            return mList == null?0:mList.size();
-        }
-    }
+//    private final static class MyAdapter extends FragmentPagerAdapter {
+//        ArrayList<Fragment> mList;
+//        Test mMusicListFragment;
+//        public MyAdapter(FragmentManager fm) {
+//            super(fm);
+//            mList = new ArrayList<>(2);
+//            mMusicListFragment = new Test();
+//            mList.add(mMusicListFragment);
+//            mList.add(new MusicLyricFragment());
+//        }
+//
+//        public void updateFragment(String[][] musicInfo) {
+//            mMusicListFragment.setArguments(musicInfo);
+//        }
+//
+//        @Override
+//        public Fragment getItem(int position) {
+//            return mList.get(position);
+//        }
+//
+//        @Override
+//        public int getCount() {
+//            return mList == null?0:mList.size();
+//        }
+//    }
 
 }

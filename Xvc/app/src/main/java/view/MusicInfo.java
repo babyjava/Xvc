@@ -16,19 +16,19 @@ import codelala.xvc.MusicUtils;
 /**
  * Created by Administrator on 2016/1/16 0016.
  */
-public class MusicPlayingInfo extends RelativeLayout {
+public class MusicInfo extends RelativeLayout {
 
     private final int[] mRes = new int[]{R.id.play_title, R.id.play_album, R.id.play_artist, R.id.play_time};
     private final int mResLen = mRes.length;
     private SparseArray<TextView> mPlayTextArray = new SparseArray<>(mResLen);
     private MusicBinder mMusicBinder;
 
-    public MusicPlayingInfo(Context context) {
+    public MusicInfo(Context context) {
         super(context);
         init(context);
     }
 
-    public MusicPlayingInfo(Context context, AttributeSet attrs) {
+    public MusicInfo(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
@@ -51,7 +51,7 @@ public class MusicPlayingInfo extends RelativeLayout {
     };
 
     private final void init(Context context) {
-        View view = LayoutInflater.from(context).inflate(R.layout.play_info, null);
+        View view = LayoutInflater.from(context).inflate(R.layout.view_music_info, null);
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
         addView(view, lp);
         for (int i = 0; i < mResLen; i++) {

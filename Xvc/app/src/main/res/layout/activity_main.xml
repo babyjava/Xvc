@@ -5,13 +5,13 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context=".MusicMainActivity">
-    <android.support.v4.view.ViewPager
-        android:id="@+id/play_viewpager"
+    <view.MusicBody
+        android:id="@+id/play_body"
         android:layout_above="@+id/play_info"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <view.MusicPlayingInfo
+    <view.MusicInfo
         android:id="@+id/play_info"
         android:layout_above="@+id/play_seekbar"
         android:layout_width="match_parent"
@@ -23,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <view.MusicPlayBar
+    <view.MusicBar
         android:id="@+id/play_bar"
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
