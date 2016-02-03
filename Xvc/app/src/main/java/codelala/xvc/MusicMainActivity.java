@@ -5,22 +5,26 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.DisplayMetrics;
+import android.view.View;
 
-import view.MusicBody;
+import view.MusicHeader;
+import view.MusicPullLayout;
 import view.MusicBar;
 import view.MusicInfo;
 import view.MusicSeekBar;
+import view.MusicViewPager;
 
-public class MusicMainActivity extends Activity {
+public final class MusicMainActivity extends Activity {
 
     private ServiceConnection mServiceConnection;
     private MusicBinder mMusicBinder;
     private MusicBar mMusicBar;
-    private MusicInfo mMusicInfo;
     private MusicSeekBar mMusicSeekBar;
-    private MusicBody mMusicBody;
+    private MusicInfo mMusicInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +33,7 @@ public class MusicMainActivity extends Activity {
         serviceConnect();
     }
 
-    private final MusicCallBack.MusicInfoReady mMusicInfoReady = new MusicCallBack.MusicInfoReady() {
+    private MusicCallBack.MusicInfoReady mMusicInfoReady = new MusicCallBack.MusicInfoReady() {
         @Override
         public void musicInfoReady(String[][] musicInfo) {
             MusicUtils.toast(MusicMainActivity.this, "musicInfoReady");
@@ -46,20 +50,30 @@ public class MusicMainActivity extends Activity {
         }
     };
 
-    private final void init() {
-        if (mMusicBar == null) {
-            mMusicBar = (MusicBar) findViewById(R.id.play_bar);
-            mMusicBar.setBinder(mMusicBinder);
-            mMusicInfo = (MusicInfo) findViewById(R.id.play_info);
-            mMusicInfo.setBinder(mMusicBinder);
-            mMusicSeekBar = (MusicSeekBar) findViewById(R.id.play_seekbar);
-            mMusicSeekBar.setBinder(mMusicBinder);
-            mMusicBody = (MusicBody) findViewById(R.id.play_body);
-            mMusicBody.setBinder(mMusicBinder);
-        }
+    private void findViewById() {
+        int yScreen = MusicUtils.getScreenHeight(this);
+        View view = findViewById(R.id.view_music_bar);
+        yScreen -= view.getHeight();
+        MusicUtils.log("xieyan3 = " + view.getHeight());
+        mMusicBar = new MusicBar(view, yScreen);
+        view = findViewById(R.id.view_music_seekbar);
+        yScreen -= view.getHeight();
+        mMusicSeekBar = new MusicSeekBar(view, yScreen);
+        view  = findViewById(R.id.view_music_info);
+        yScreen -= view.getHeight();
+        mMusicInfo = new MusicInfo(view, yScreen);
     }
 
-    private final void serviceConnect() {
+    private void initBinder(IBinder service) {
+        MusicUtils.toast(this, "initBinder");
+        mMusicBinder = (MusicBinder) service;
+        mMusicBinder.sendMsg(mMusicInfoReady, MusicCommand.REGISTER_INFO_READY);
+        mMusicBar.setBinder(mMusicBinder);
+        mMusicInfo.setBinder(mMusicBinder);
+        mMusicSeekBar.setBinder(mMusicBinder);
+    }
+
+    private void serviceConnect() {
         mServiceConnection = new ServiceConnection() {
             @Override
             public void onServiceDisconnected(ComponentName name) {
@@ -68,10 +82,8 @@ public class MusicMainActivity extends Activity {
 
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                MusicUtils.toast(MusicMainActivity.this, "onServiceConnected");
-                mMusicBinder = (MusicBinder) service;
-                mMusicBinder.sendMsg(mMusicInfoReady, MusicCommand.REGISTER_INFO_READY);
-                init();
+                findViewById();
+                initBinder(service);
             }
         };
         bindService(new Intent(MusicMainActivity.this, MusicPlayService.class), mServiceConnection, BIND_AUTO_CREATE);
@@ -113,5 +125,6 @@ public class MusicMainActivity extends Activity {
 //            return mList == null?0:mList.size();
 //        }
 //    }
+
 
 }

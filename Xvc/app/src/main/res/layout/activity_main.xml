@@ -1,31 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context=".MusicMainActivity">
-    <view.MusicBody
-        android:id="@+id/play_body"
-        android:layout_above="@+id/play_info"
+    <include layout="@layout/view_music_header"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_weight="1"
+        android:layout_height="0dp"/>
 
-    <view.MusicInfo
-        android:id="@+id/play_info"
-        android:layout_above="@+id/play_seekbar"
+    <android.support.v4.view.ViewPager
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"/>
+
+    <include layout="@layout/view_music_info"
+        android:id="@+id/view_music_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <view.MusicSeekBar
-        android:id="@+id/play_seekbar"
-        android:layout_above="@+id/play_bar"
+    <include layout="@layout/view_music_seekbar"
+        android:id="@+id/view_music_seekbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <view.MusicBar
-        android:id="@+id/play_bar"
-        android:layout_alignParentBottom="true"
+    <include layout="@layout/view_music_bar"
+        android:id="@+id/view_music_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
-</RelativeLayout>
+
+</FrameLayout>

@@ -16,31 +16,26 @@ import codelala.xvc.MusicUtils;
 /**
  * Created by Administrator on 2016/1/16 0016.
  */
-public class MusicInfo extends RelativeLayout {
+public final class MusicInfo {
 
     private final int[] mRes = new int[]{R.id.play_title, R.id.play_album, R.id.play_artist, R.id.play_time};
     private final int mResLen = mRes.length;
     private SparseArray<TextView> mPlayTextArray = new SparseArray<>(mResLen);
     private MusicBinder mMusicBinder;
 
-    public MusicInfo(Context context) {
-        super(context);
-        init(context);
-    }
-
-    public MusicInfo(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init(context);
+    public MusicInfo(View view, int yLocation) {
+        MusicUtils.setTranslationY(view, yLocation);
+        findViewById(view);
     }
 
     public void setBinder(MusicBinder musicBinder) {
-        if (mMusicBinder == null) {
+        if (musicBinder != null) {
             mMusicBinder = musicBinder;
             mMusicBinder.sendMsg(mMusicPlayingInfo, MusicCommand.REGISTER_PLAYING_INFO);
         }
     }
 
-    private final MusicCallBack.MusicPlayingInfo mMusicPlayingInfo = new MusicCallBack.MusicPlayingInfo() {
+    private MusicCallBack.MusicPlayingInfo mMusicPlayingInfo = new MusicCallBack.MusicPlayingInfo() {
         @Override
         public void musicPlayingInfo(String artist, String title, String ablum, int time) {
             mPlayTextArray.get(R.id.play_artist).setText(artist);
@@ -50,10 +45,7 @@ public class MusicInfo extends RelativeLayout {
         }
     };
 
-    private final void init(Context context) {
-        View view = LayoutInflater.from(context).inflate(R.layout.view_music_info, null);
-        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-        addView(view, lp);
+    private void findViewById(View view) {
         for (int i = 0; i < mResLen; i++) {
             TextView tmp = (TextView) view.findViewById(mRes[i]);
             mPlayTextArray.append(mRes[i], tmp);

@@ -9,36 +9,32 @@ import android.widget.SeekBar;
 import codelala.xvc.MusicCallBack;
 import codelala.xvc.MusicCommand;
 import codelala.xvc.MusicBinder;
+import codelala.xvc.MusicUtils;
 import codelala.xvc.R;
 
 /**
  * Created by Administrator on 2016/1/16 0016.
  */
-public class MusicSeekBar extends RelativeLayout {
+public final class MusicSeekBar {
 
     private MusicBinder mMusicBinder;
     private SeekBar mMusicSeekBar;
     private boolean mIsPlaying;
     private boolean mIsTouchSeekBar;
 
-    public MusicSeekBar(Context context) {
-        super(context);
-        init(context);
-    }
-
-    public MusicSeekBar(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init(context);
+    public MusicSeekBar(View view, int yLocation) {
+        MusicUtils.setTranslationY(view, yLocation);
+        findViewById(view);
     }
 
     public void setBinder(MusicBinder musicBinder) {
-        if (mMusicBinder == null) {
+        if (musicBinder != null) {
             mMusicBinder = musicBinder;
             mMusicBinder.sendMsg(mMusicSeekBarStatus, MusicCommand.REGISTER_SEEKBAR_STATUS);
         }
     }
 
-    private final MusicCallBack.MusicSeekBarStatus mMusicSeekBarStatus = new MusicCallBack.MusicSeekBarStatus() {
+    private MusicCallBack.MusicSeekBarStatus mMusicSeekBarStatus = new MusicCallBack.MusicSeekBarStatus() {
 
         @Override
         public void musicSeekBarStatus(boolean isPlaying, int position, int time) {
@@ -47,7 +43,7 @@ public class MusicSeekBar extends RelativeLayout {
         }
     };
 
-    private final Runnable r = new Runnable() {
+    private Runnable r = new Runnable() {
         @Override
         public void run() {
             mMusicSeekBar.postDelayed(this, 100);
@@ -61,10 +57,7 @@ public class MusicSeekBar extends RelativeLayout {
         }
     };
 
-    private final void init(Context context) {
-        View view = LayoutInflater.from(context).inflate(R.layout.view_music_seekbar, null);
-        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-        addView(view, lp);
+    private void findViewById(View view) {
         mMusicSeekBar = (SeekBar) view.findViewById(R.id.play_seek_bar);
         mMusicSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -82,7 +75,7 @@ public class MusicSeekBar extends RelativeLayout {
         });
     }
 
-    private final void runSeekBar(int duration, int position) {
+    private void runSeekBar(int duration, int position) {
         mMusicSeekBar.removeCallbacks(r);
         mMusicSeekBar.setMax(duration);
         mMusicSeekBar.setProgress(position);

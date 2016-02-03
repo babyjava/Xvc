@@ -16,7 +16,7 @@ public class MusicLyricFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         if (mView == null) {
-            mView = inflater.inflate(R.layout.fragment_music_list, container, false);
+            mView = inflater.inflate(R.layout.view_music_pull_layout, container, false);
         } else {
             if (mView.getParent() != null) {
                 container = (ViewGroup) mView.getParent();
