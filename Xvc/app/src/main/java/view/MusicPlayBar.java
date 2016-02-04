@@ -1,12 +1,8 @@
 package view;
 
-import android.content.Context;
-import android.util.AttributeSet;
 import android.util.SparseArray;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import codelala.xvc.MusicBinder;
 import codelala.xvc.MusicCallBack;
 import codelala.xvc.MusicCommand;
@@ -16,22 +12,27 @@ import codelala.xvc.R;
 /**
  * Created by Administrator on 2016/1/18 0018.
  */
-public final class MusicBar {
+public final class MusicPlayBar extends BaseView {
     private final int[] mRes = new int[]{R.id.play_play, R.id.play_next, R.id.play_last};
     private final int mResLen = mRes.length;
     private final SparseArray<ImageView> mPlayViewArray = new SparseArray<>(mResLen);
     private MusicBinder mMusicBinder;
+    private View mView;
 
-    public MusicBar(View view, int yLocation) {
-        MusicUtils.setTranslationY(view, yLocation);
-        findViewById(view);
+    public MusicPlayBar(View view) {
+        mView = view;
+        findViewById();
     }
 
+    @Override
     public void setBinder(MusicBinder musicBinder) {
-        if (musicBinder != null) {
-            mMusicBinder = musicBinder;
-            mMusicBinder.sendMsg(mMusicPlayingStatus, MusicCommand.REGISTER_PLAYING_STATUS);
-        }
+        mMusicBinder = musicBinder;
+        mMusicBinder.sendMsg(mMusicPlayBarListener, MusicCommand.REGISTER_MUSIC_PLAY_BAR_LISTENER);
+    }
+
+    @Override
+    public int setYLocation(int yLocation) {
+        return MusicUtils.setYLocation(mView, yLocation);
     }
 
     private View.OnClickListener mClickListener = new View.OnClickListener(){
@@ -41,9 +42,9 @@ public final class MusicBar {
         }
     };
 
-    private MusicCallBack.MusicPlayingStatus mMusicPlayingStatus = new MusicCallBack.MusicPlayingStatus() {
+    private MusicCallBack.MusicPlayBarListener mMusicPlayBarListener = new MusicCallBack.MusicPlayBarListener() {
         @Override
-        public void musicPlayingStatus(boolean isPlaying) {
+        public void musicPlayBarStatus(boolean isPlaying) {
             mPlayViewArray.get(R.id.play_play).setImageResource(isPlaying ? R.drawable.playing : R.drawable.pause);
         }
     };
@@ -63,10 +64,9 @@ public final class MusicBar {
         }
     }
 
-    private void findViewById(View view) {
-
+    private void findViewById() {
         for (int i = 0; i < mResLen; i++) {
-            ImageView tmp = (ImageView) view.findViewById(mRes[i]);
+            ImageView tmp = (ImageView) mView.findViewById(mRes[i]);
             tmp.setOnClickListener(mClickListener);
             mPlayViewArray.append(mRes[i], tmp);
         }

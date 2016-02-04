@@ -22,7 +22,7 @@ public class MusicController {
     private boolean mIsInit = false;
     private String[][] mMusicList;
     private Context mContext;
-    private MusicCallBack.MusicPlayingStatus mMusicPlayingStatus;
+    private MusicCallBack.MusicPlayBarListener mMusicPlayBarListener;
     private MusicCallBack.MusicPlayingInfo mMusicPlayingInfo;
     private MusicCallBack.MusicSeekBarStatus mMusicSeekBarStatus;
     private MusicCallBack.MusicInfoReady mMusicInfoReady;
@@ -44,7 +44,7 @@ public class MusicController {
         mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
-                doMusicStart();
+                //doMusicStart();
             }
         });
         mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -71,13 +71,13 @@ public class MusicController {
             case MusicCommand.CLICK_PLAY_PLAY:
                 doClickPlayAction(what);
                 break;
-            case MusicCommand.REGISTER_PLAYING_STATUS:
-                mMusicPlayingStatus = (MusicCallBack.MusicPlayingStatus) msg.obj;
+            case MusicCommand.REGISTER_MUSIC_PLAY_BAR_LISTENER:
+                callBackOfMusicPlayBarStatus(msg.obj);
                 break;
             case MusicCommand.REGISTER_PLAYING_INFO:
                 callBackOfMusicPlayingInfo(msg.obj);
                 break;
-            case MusicCommand.REGISTER_INFO_READY:
+            case MusicCommand.REGISTER_MUSIC_ARRAY_READY_LISTENER:
                 callBackOfMusicInfoReady(msg.obj);
                 break;
             case MusicCommand.REGISTER_SEEKBAR_STATUS:
@@ -116,7 +116,7 @@ public class MusicController {
             doMusicPause();
         } else {
             if (mIsInit && mIsPause) {
-                doMusicStart();
+                //doMusicStart();
             } else {
                 if (mMusicList == null) {
                 } else {
@@ -130,8 +130,13 @@ public class MusicController {
         return mMediaPlayer.isPlaying();
     }
 
-    private final void callBackOfMusicPlayingStatus() {
-        if (mMusicPlayingStatus != null) mMusicPlayingStatus.musicPlayingStatus(isPlaying());
+    private final void callBackOfMusicPlayBarStatus(Object obj) {
+        if (obj != null) {
+            mMusicPlayBarListener = (MusicCallBack.MusicPlayBarListener) obj;
+        }
+        if (mMusicPlayBarListener != null) {
+            mMusicPlayBarListener.musicPlayBarStatus(isPlaying());
+        }
     }
 
     private final void doMusicStart() {
@@ -139,7 +144,7 @@ public class MusicController {
         mMediaPlayer.start();
         mIsPause = false;
         callBackOfMusicPlayingInfo(null);
-        callBackOfMusicPlayingStatus();
+        callBackOfMusicPlayBarStatus(null);
     }
 
     private final void callBackOfMusicInfoReady(Object obj) {
@@ -171,7 +176,7 @@ public class MusicController {
     private final void doMusicPause() {
         mMediaPlayer.pause();
         mIsPause = true;
-        callBackOfMusicPlayingStatus();
+        callBackOfMusicPlayBarStatus(null);
         MusicInfo.savePlayingMusicInfo(mContext, mMusicList[mDataSourceArray][mPlayMusicIndex]);
     }
 

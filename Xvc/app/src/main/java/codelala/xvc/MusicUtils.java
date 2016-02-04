@@ -14,7 +14,9 @@ import java.util.Random;
  */
 public final class MusicUtils {
 
-    private final static boolean DEBUG = true;
+    private static boolean DEBUG = true;
+
+    private static int mScreenY = -1;
 
     public static <T extends View> T get(View view, int id) {
         return (T) view.findViewById(id);
@@ -69,19 +71,30 @@ public final class MusicUtils {
         return cur;
     }
 
+    public static int setYLocation(View view, int y) {
+        if (view.getY() == 0) {
+            y -= view.getHeight();
+            setTranslationY(view, y);
+        }
+        return y;
+    }
+
     public static void setTranslationY(View view ,int y) {
         view.setTranslationY(y);
     }
 
     public static int getScreenHeight(Context context) {
-        Point size = new Point();
-        ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getSize(size);
-        int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            return (size.y - context.getResources().getDimensionPixelSize(resourceId));
-        } else {
-            return size.y - 50;
+        if (mScreenY < 0) {
+            Point size = new Point();
+            ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getSize(size);
+            int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                mScreenY = (size.y - context.getResources().getDimensionPixelSize(resourceId));
+            } else {
+                mScreenY = (size.y - 50);
+            }
         }
+        return mScreenY;
     }
 
 }

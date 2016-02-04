@@ -16,23 +16,30 @@ import codelala.xvc.MusicUtils;
 /**
  * Created by Administrator on 2016/1/16 0016.
  */
-public final class MusicInfo {
+public final class MusicTitleBar extends BaseView {
 
     private final int[] mRes = new int[]{R.id.play_title, R.id.play_album, R.id.play_artist, R.id.play_time};
     private final int mResLen = mRes.length;
     private SparseArray<TextView> mPlayTextArray = new SparseArray<>(mResLen);
     private MusicBinder mMusicBinder;
+    private View mView;
 
-    public MusicInfo(View view, int yLocation) {
-        MusicUtils.setTranslationY(view, yLocation);
-        findViewById(view);
+    public MusicTitleBar(View view) {
+        mView = view;
+        findViewById();
     }
 
+    @Override
     public void setBinder(MusicBinder musicBinder) {
         if (musicBinder != null) {
             mMusicBinder = musicBinder;
             mMusicBinder.sendMsg(mMusicPlayingInfo, MusicCommand.REGISTER_PLAYING_INFO);
         }
+    }
+
+    @Override
+    public int setYLocation(int yLocation) {
+        return MusicUtils.setYLocation(mView, yLocation);
     }
 
     private MusicCallBack.MusicPlayingInfo mMusicPlayingInfo = new MusicCallBack.MusicPlayingInfo() {
@@ -45,9 +52,9 @@ public final class MusicInfo {
         }
     };
 
-    private void findViewById(View view) {
+    private void findViewById() {
         for (int i = 0; i < mResLen; i++) {
-            TextView tmp = (TextView) view.findViewById(mRes[i]);
+            TextView tmp = (TextView) mView.findViewById(mRes[i]);
             mPlayTextArray.append(mRes[i], tmp);
         }
     }

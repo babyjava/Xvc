@@ -7,8 +7,8 @@ public class MusicCallBack {
 
     private MusicCallBack(){};
 
-    public interface MusicPlayingStatus {
-        void musicPlayingStatus(boolean isPlaying);
+    public interface MusicPlayBarListener {
+        void musicPlayBarStatus(boolean isPlaying);
     }
 
     public interface MusicPlayingInfo {

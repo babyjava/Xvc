@@ -8,7 +8,7 @@ import android.support.annotation.Nullable;
 /**
  * Created by Administrator on 2016/1/5 0005.
  */
-public class MusicPlayService extends Service {
+public final class MusicPlayService extends Service {
 
     private final MusicBinder mMusicBinder = new MusicBinder(this);
 

@@ -15,23 +15,28 @@ import codelala.xvc.R;
 /**
  * Created by Administrator on 2016/1/16 0016.
  */
-public final class MusicSeekBar {
+public final class MusicSeekBar extends BaseView{
 
     private MusicBinder mMusicBinder;
     private SeekBar mMusicSeekBar;
     private boolean mIsPlaying;
     private boolean mIsTouchSeekBar;
+    private View mView;
 
-    public MusicSeekBar(View view, int yLocation) {
-        MusicUtils.setTranslationY(view, yLocation);
-        findViewById(view);
+    public MusicSeekBar(View view) {
+        mView = view;
+        findViewById();
     }
 
+    @Override
     public void setBinder(MusicBinder musicBinder) {
-        if (musicBinder != null) {
-            mMusicBinder = musicBinder;
-            mMusicBinder.sendMsg(mMusicSeekBarStatus, MusicCommand.REGISTER_SEEKBAR_STATUS);
-        }
+        mMusicBinder = musicBinder;
+        mMusicBinder.sendMsg(mMusicSeekBarStatus, MusicCommand.REGISTER_SEEKBAR_STATUS);
+    }
+
+    @Override
+    public int setYLocation(int yLocation) {
+        return MusicUtils.setYLocation(mView, yLocation);
     }
 
     private MusicCallBack.MusicSeekBarStatus mMusicSeekBarStatus = new MusicCallBack.MusicSeekBarStatus() {
@@ -57,8 +62,8 @@ public final class MusicSeekBar {
         }
     };
 
-    private void findViewById(View view) {
-        mMusicSeekBar = (SeekBar) view.findViewById(R.id.play_seek_bar);
+    private void findViewById() {
+        mMusicSeekBar = (SeekBar) mView.findViewById(R.id.play_seek_bar);
         mMusicSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {

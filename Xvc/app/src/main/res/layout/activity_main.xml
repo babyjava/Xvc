@@ -15,18 +15,18 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"/>
 
-    <include layout="@layout/view_music_info"
-        android:id="@+id/view_music_info"
+    <include layout="@layout/music_title_bar"
+        android:id="@+id/music_title_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <include layout="@layout/view_music_seekbar"
-        android:id="@+id/view_music_seekbar"
+    <include layout="@layout/music_seek_bar"
+        android:id="@+id/music_seek_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <include layout="@layout/view_music_bar"
-        android:id="@+id/view_music_bar"
+    <include layout="@layout/music_play_bar"
+        android:id="@+id/music_play_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
