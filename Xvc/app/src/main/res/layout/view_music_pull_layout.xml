@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include layout="@layout/view_music_header"
+    <include layout="@layout/music_head_bar"
         android:id="@+id/view_music_header"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

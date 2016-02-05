@@ -2,7 +2,7 @@ package view;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;
-import codelala.xvc.MusicBinder;
+import codelala.xvc.MusicPlayService.MusicBinder;
 import codelala.xvc.MusicCallBack;
 import codelala.xvc.MusicCommand;
 import codelala.xvc.R;
@@ -22,7 +22,7 @@ public class MusicViewPager {
     public void setBinder(MusicBinder musicBinder) {
         if (musicBinder != null) {
             mMusicBinder = musicBinder;
-            mMusicBinder.sendMsg(mMusicPlayingStatus, MusicCommand.REGISTER_PLAYING_STATUS);
+//            mMusicBinder.sendMsg(mMusicPlayingStatus, MusicCommand.REGISTER_PLAYING_STATUS);
         }
     }
 
@@ -33,11 +33,11 @@ public class MusicViewPager {
         }
     };
 
-    private final MusicCallBack.MusicPlayingStatus mMusicPlayingStatus = new MusicCallBack.MusicPlayingStatus() {
-        @Override
-        public void musicPlayingStatus(boolean isPlaying) {
-        }
-    };
+//    private final MusicCallBack.MusicPlayingStatus mMusicPlayingStatus = new MusicCallBack.MusicPlayingStatus() {
+//        @Override
+//        public void musicPlayingStatus(boolean isPlaying) {
+//        }
+//    };
 
     private final void doOnClick(int id) {
         if (mMusicBinder == null) return;

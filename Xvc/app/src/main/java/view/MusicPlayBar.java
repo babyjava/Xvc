@@ -3,7 +3,7 @@ package view;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.ImageView;
-import codelala.xvc.MusicBinder;
+import codelala.xvc.MusicPlayService.MusicBinder;
 import codelala.xvc.MusicCallBack;
 import codelala.xvc.MusicCommand;
 import codelala.xvc.MusicUtils;
@@ -18,6 +18,7 @@ public final class MusicPlayBar extends BaseView {
     private final SparseArray<ImageView> mPlayViewArray = new SparseArray<>(mResLen);
     private MusicBinder mMusicBinder;
     private View mView;
+    private boolean mIsPlaying;
 
     public MusicPlayBar(View view) {
         mView = view;
@@ -31,8 +32,12 @@ public final class MusicPlayBar extends BaseView {
     }
 
     @Override
-    public int setYLocation(int yLocation) {
+    public int setLocation(int yLocation) {
         return MusicUtils.setYLocation(mView, yLocation);
+    }
+
+    public boolean isPlaying() {
+        return mIsPlaying;
     }
 
     private View.OnClickListener mClickListener = new View.OnClickListener(){
@@ -45,6 +50,7 @@ public final class MusicPlayBar extends BaseView {
     private MusicCallBack.MusicPlayBarListener mMusicPlayBarListener = new MusicCallBack.MusicPlayBarListener() {
         @Override
         public void musicPlayBarStatus(boolean isPlaying) {
+            mIsPlaying = isPlaying;
             mPlayViewArray.get(R.id.play_play).setImageResource(isPlaying ? R.drawable.playing : R.drawable.pause);
         }
     };

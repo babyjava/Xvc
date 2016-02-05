@@ -1,4 +1,4 @@
-package music;
+package codelala.xvc;
 
 import android.content.Context;
 import android.media.MediaPlayer;
@@ -7,19 +7,16 @@ import android.os.Message;
 
 import java.io.IOException;
 
-import codelala.xvc.MusicCallBack;
-import codelala.xvc.MusicCommand;
-import codelala.xvc.MusicUtils;
-
 /**
  * Created by Administrator on 2016/1/7 0007.
  */
-public class MusicController {
+public final class MusicController {
 
-    private MediaPlayer mMediaPlayer  = new MediaPlayer();;
-    private static MusicController instance = new MusicController();
+    private MediaPlayer mMediaPlayer;
+    private static MusicController instance;
     private boolean mIsPause = true;
     private boolean mIsInit = false;
+    private boolean mIsReady = false;
     private String[][] mMusicList;
     private Context mContext;
     private MusicCallBack.MusicPlayBarListener mMusicPlayBarListener;
@@ -32,44 +29,60 @@ public class MusicController {
     private int mPlayMusicIndex;
     private int mMusicListLength;
 
+    private void destroy() {
+        mMediaPlayer.release();
+        mMediaPlayer = null;
+        instance = null;
+    }
+
     private MusicController(){}
 
     public static MusicController getInstance() {
+        if (instance == null) {
+            instance = new MusicController();
+        }
         return instance;
     }
 
     public void init(Context context) {
         mContext = context;
+        mMediaPlayer  = new MediaPlayer();
         new DataTask().execute();
         mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
-                //doMusicStart();
+                mIsReady = true;
+                mIsPause = true;
+                doMusicStart();
             }
         });
         mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
+                mIsReady = false;
                 setDataSource(autoPlayDataSource());
             }
         });
     }
 
-    public final void handleMsg(Message msg) {
+    public void handleMsg(Message msg) {
         int what = (msg == null? MusicCommand.SYSTEM_ERROR:msg.what);
         switch (what) {
+            case MusicCommand.MUSIC_MAIN_ACTIVITY_DESTROY:
+                destroy();
+                break;
             case MusicCommand.CLICK_MODE_LOOP:
             case MusicCommand.CLICK_MODE_SINGLE:
             case MusicCommand.CLICK_MODE_RANDOM:
                 mPlayMode = what;
-                MusicInfo.savePlayMode(what, mContext);
+                MusicData.savePlayMode(what, mContext);
                 break;
             case MusicCommand.CLICK_PLAY_LAST:
             case MusicCommand.CLICK_PLAY_NEXT:
                 setDataSource(clickGetDataSource(what));
                 break;
             case MusicCommand.CLICK_PLAY_PLAY:
-                doClickPlayAction(what);
+                doClickPlayAction();
                 break;
             case MusicCommand.REGISTER_MUSIC_PLAY_BAR_LISTENER:
                 callBackOfMusicPlayBarStatus(msg.obj);
@@ -89,12 +102,15 @@ public class MusicController {
         }
     }
 
+    public boolean isPlaying() {
+        return !mIsPause;
+    }
     /*
     public ---------------------------up
     private --------------------------down
     * */
 
-    private final void seekTo(int position) {
+    private void seekTo(int position) {
         if (mMusicList == null) {
 
         } else {
@@ -102,7 +118,7 @@ public class MusicController {
         }
     }
 
-    private final void callBackOfMusicSeekBarStatus(Object obj) {
+    private void callBackOfMusicSeekBarStatus(Object obj) {
         if (mMusicSeekBarStatus == null && obj != null) {
             mMusicSeekBarStatus = (MusicCallBack.MusicSeekBarStatus) obj;
         }
@@ -111,26 +127,16 @@ public class MusicController {
         }
     }
 
-    private final void doClickPlayAction(int arg) {
-        if (isPlaying()) {
-            doMusicPause();
+    private void doClickPlayAction() {
+        mIsInit = true;
+        if (mIsPause) {
+            doMusicStart();
         } else {
-            if (mIsInit && mIsPause) {
-                //doMusicStart();
-            } else {
-                if (mMusicList == null) {
-                } else {
-                    setDataSource(clickGetDataSource(arg));
-                }
-            }
+           doMusicPause();
         }
     }
 
-    private final boolean isPlaying() {
-        return mMediaPlayer.isPlaying();
-    }
-
-    private final void callBackOfMusicPlayBarStatus(Object obj) {
+    private void callBackOfMusicPlayBarStatus(Object obj) {
         if (obj != null) {
             mMusicPlayBarListener = (MusicCallBack.MusicPlayBarListener) obj;
         }
@@ -139,16 +145,17 @@ public class MusicController {
         }
     }
 
-    private final void doMusicStart() {
-        mIsInit = true;
-        mMediaPlayer.start();
-        mIsPause = false;
-        callBackOfMusicPlayingInfo(null);
-        callBackOfMusicPlayBarStatus(null);
+    private void doMusicStart() {
+        if (mIsReady && mIsInit) {
+            mMediaPlayer.start();
+            mIsPause = false;
+            callBackOfMusicPlayingInfo(null);
+            callBackOfMusicPlayBarStatus(null);
+        }
     }
 
-    private final void callBackOfMusicInfoReady(Object obj) {
-        if (mMusicInfoReady == null && obj != null) {
+    private void callBackOfMusicInfoReady(Object obj) {
+        if (obj != null) {
             mMusicInfoReady = (MusicCallBack.MusicInfoReady) obj;
         }
         if (mMusicInfoReady != null) {
@@ -156,7 +163,7 @@ public class MusicController {
         }
     }
 
-    private final void callBackOfMusicPlayingInfo(Object obj) {
+    private void callBackOfMusicPlayingInfo(Object obj) {
         if (mMusicPlayingInfo == null && obj != null) {
             mMusicPlayingInfo = (MusicCallBack.MusicPlayingInfo) obj;
         }
@@ -168,22 +175,22 @@ public class MusicController {
         }
     }
 
-    private final int getDuration() {
+    private int getDuration() {
         int d = mMediaPlayer.getDuration();
         return ((d < 0) ? 240 : d);
     }
 
-    private final void doMusicPause() {
+    private void doMusicPause() {
         mMediaPlayer.pause();
         mIsPause = true;
         callBackOfMusicPlayBarStatus(null);
-        MusicInfo.savePlayingMusicInfo(mContext, mMusicList[mDataSourceArray][mPlayMusicIndex]);
+        MusicData.savePlayingMusicInfo(mContext, mMusicList[mDataSourceArray][mPlayMusicIndex]);
     }
 
     private final class DataTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
-            mMusicList = MusicInfo.crateMusicArray(mContext);
+            mMusicList = MusicData.crateMusicArray(mContext);
             initFirstPlayInfo();
             return null;
         }
@@ -192,13 +199,14 @@ public class MusicController {
         protected void onPostExecute(Void str) {
             super.onPostExecute(str);
             callBackOfMusicInfoReady(null);
+            MusicUtils.log("mPlayingMusicInfo= " + mPlayingMusicInfo);
+            setDataSource(mPlayingMusicInfo);
         }
     }
 
-    private final void setDataSource(String dataSource) {
+    private void setDataSource(String dataSource) {
         if (dataSource == null) return;
         mMediaPlayer.reset();
-        mIsPause = false;
         try {
             mMediaPlayer.setDataSource(dataSource);
             mMediaPlayer.prepareAsync();
@@ -213,12 +221,12 @@ public class MusicController {
         }
     }
 
-    private final void initFirstPlayInfo() {
+    private void initFirstPlayInfo() {
         if (mMusicList == null) return;
-        mPlayingMusicInfo = MusicInfo.getPlayingMusicInfo(mContext);
-        mDataSourceArray = MusicInfo.getDataSourceArray();
+        mPlayingMusicInfo = MusicData.getPlayingMusicInfo(mContext);
+        mDataSourceArray = MusicData.getDataSourceArray();
         mMusicListLength = mMusicList[mDataSourceArray].length;
-        mPlayMode = MusicInfo.getPlayMode(mContext);
+        mPlayMode = MusicData.getPlayMode(mContext);
         if (mPlayingMusicInfo != null) {
             for (int i = 0; i < mMusicListLength; i++) {
                 if (mPlayingMusicInfo.equals(mMusicList[mDataSourceArray][i])) {
@@ -232,7 +240,7 @@ public class MusicController {
         }
     }
 
-    private final String clickGetDataSource(int arg) {
+    private String clickGetDataSource(int arg) {
         if (mMusicList == null) return null;
         switch (arg) {
             case MusicCommand.CLICK_PLAY_LAST:
@@ -246,7 +254,7 @@ public class MusicController {
         }
     }
 
-    private final String autoPlayDataSource() {
+    private String autoPlayDataSource() {
         if (mMusicList == null) return null;
         switch (mPlayMode) {
             case MusicCommand.CLICK_MODE_LOOP:

@@ -3,7 +3,7 @@ package codelala.xvc;
 /**
  * Created by Administrator on 2016/1/16 0016.
  */
-public class MusicCallBack {
+public final class MusicCallBack {
 
     private MusicCallBack(){};
 

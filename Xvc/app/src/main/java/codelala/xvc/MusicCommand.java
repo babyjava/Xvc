@@ -19,4 +19,5 @@ public interface MusicCommand {
     int REGISTER_PLAYING_INFO = 8;
     int REGISTER_SEEKBAR_STATUS = 9;
     int REGISTER_MUSIC_ARRAY_READY_LISTENER = 10;
+    int MUSIC_MAIN_ACTIVITY_DESTROY = 11;
 }

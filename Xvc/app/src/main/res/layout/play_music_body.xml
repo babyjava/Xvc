@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <view.MusicHeader
+    <view.MusicHeaderBar
         android:layout_above="@+id/play_viewpager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>

@@ -79,6 +79,13 @@ public final class MusicUtils {
         return y;
     }
 
+    public static void setPivotY(View view, float y) {
+        view.setPivotY(y);
+    }
+
+    public static void setScaleY(View view, float y) {
+        view.setScaleY(y);
+    }
     public static void setTranslationY(View view ,int y) {
         view.setTranslationY(y);
     }

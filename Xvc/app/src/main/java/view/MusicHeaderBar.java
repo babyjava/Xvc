@@ -1,30 +1,33 @@
 package view;
 
-import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
-import codelala.xvc.MusicBinder;
-import codelala.xvc.MusicCallBack;
+import codelala.xvc.MusicPlayService.MusicBinder;
 import codelala.xvc.MusicCommand;
+import codelala.xvc.MusicUtils;
 import codelala.xvc.R;
 
 /**
  * Created by Administrator on 2016/1/18 0018.
  */
-public class MusicHeader {
+public final class MusicHeaderBar extends BaseView{
 
-    private View mHeadView;
+    private View mView;
     private MusicBinder mMusicBinder;
 
-    public MusicHeader(View view) {
-        mHeadView = view;
+    public MusicHeaderBar(View view) {
+        mView = view;
     }
 
+    @Override
     public void setBinder(MusicBinder musicBinder) {
-        if (mMusicBinder == null && musicBinder != null) {
             mMusicBinder = musicBinder;
-            mMusicBinder.sendMsg(mMusicPlayingStatus, MusicCommand.REGISTER_PLAYING_STATUS);
-        }
+    }
+
+    @Override
+    public int setLocation(int y) {
+        MusicUtils.setPivotY(mView, 0.0f);
+        MusicUtils.setScaleY(mView, (float)y/mView.getHeight());
+        return 0;
     }
 
 
@@ -35,11 +38,11 @@ public class MusicHeader {
         }
     };
 
-    private final MusicCallBack.MusicPlayingStatus mMusicPlayingStatus = new MusicCallBack.MusicPlayingStatus() {
-        @Override
-        public void musicPlayingStatus(boolean isPlaying) {
-        }
-    };
+//    private final MusicCallBack.MusicPlayingStatus mMusicPlayingStatus = new MusicCallBack.MusicPlayingStatus() {
+//        @Override
+//        public void musicPlayingStatus(boolean isPlaying) {
+//        }
+//    };
 
     private final void doOnClick(int id) {
         if (mMusicBinder == null) return;

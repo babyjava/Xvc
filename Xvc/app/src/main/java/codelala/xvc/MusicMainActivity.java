@@ -7,8 +7,8 @@ import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.view.KeyEvent;
 
+import view.MusicHeaderBar;
 import view.MusicPlayBar;
 import view.MusicTitleBar;
 import view.MusicSeekBar;
@@ -16,10 +16,11 @@ import view.MusicSeekBar;
 public final class MusicMainActivity extends Activity {
 
     private ServiceConnection mServiceConnection;
-    private MusicBinder mMusicBinder;
+    private MusicPlayService.MusicBinder mMusicBinder;
     private MusicPlayBar mMusicPlayBar;
     private MusicSeekBar mMusicSeekBar;
     private MusicTitleBar mMusicTitleBar;
+    private MusicHeaderBar mMusicHeaderBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,41 +30,27 @@ public final class MusicMainActivity extends Activity {
         serviceConnect();
     }
 
-    private MusicCallBack.MusicInfoReady mMusicInfoReady = new MusicCallBack.MusicInfoReady() {
-        @Override
-        public void musicInfoReady(String[][] musicInfo) {
-            MusicUtils.toast(MusicMainActivity.this, "musicInfoReady");
-            if(musicInfo == null) {
-
-            } else {
-//                if (mViewPager == null) {
-//                    mViewPager = (ViewPager) findViewById(R.id.play_viewpager);
-//                    mMyAdapter = new MyAdapter(getSupportFragmentManager());
-//                    mViewPager.setAdapter(mMyAdapter);
-//                }
-//                mMyAdapter.updateFragment(musicInfo);
-            }
-        }
-    };
-
     private void setYLocation() {
         int y = MusicUtils.getScreenHeight(this);
-        y = mMusicPlayBar.setYLocation(y);
-        y = mMusicSeekBar.setYLocation(y);
-        mMusicTitleBar.setYLocation(y);
+        y = mMusicPlayBar.setLocation(y);
+        y = mMusicSeekBar.setLocation(y);
+        y = mMusicTitleBar.setLocation(y);
+        mMusicHeaderBar.setLocation(y);
     }
 
     private void findViewById() {
+        mMusicHeaderBar = new MusicHeaderBar(findViewById(R.id.music_head_bar));
         mMusicPlayBar = new MusicPlayBar(findViewById(R.id.music_play_bar));
         mMusicSeekBar = new MusicSeekBar(findViewById(R.id.music_seek_bar));
         mMusicTitleBar = new MusicTitleBar(findViewById(R.id.music_title_bar));
     }
 
     private void initBinder(IBinder service) {
-        mMusicBinder = (MusicBinder) service;
+        mMusicBinder = (MusicPlayService.MusicBinder) service;
         mMusicPlayBar.setBinder(mMusicBinder);
         mMusicTitleBar.setBinder(mMusicBinder);
         mMusicSeekBar.setBinder(mMusicBinder);
+        mMusicHeaderBar.setBinder(mMusicBinder);
     }
 
     private void serviceConnect() {
@@ -89,6 +76,11 @@ public final class MusicMainActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbindService(mServiceConnection);
+        if (mMusicPlayBar.isPlaying()) {
+            unbindService(mServiceConnection);
+        } else {
+            mMusicBinder.sendMsg(MusicCommand.MUSIC_MAIN_ACTIVITY_DESTROY);
+            stopService(new Intent(this, MusicPlayService.class));
+        }
     }
 }

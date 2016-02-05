@@ -1,15 +1,11 @@
 package view;
 
-import android.content.Context;
-import android.util.AttributeSet;
 import android.util.SparseArray;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import codelala.xvc.MusicCallBack;
 import codelala.xvc.MusicCommand;
-import codelala.xvc.MusicBinder;
+import codelala.xvc.MusicPlayService.MusicBinder;
 import codelala.xvc.R;
 import codelala.xvc.MusicUtils;
 
@@ -38,7 +34,7 @@ public final class MusicTitleBar extends BaseView {
     }
 
     @Override
-    public int setYLocation(int yLocation) {
+    public int setLocation(int yLocation) {
         return MusicUtils.setYLocation(mView, yLocation);
     }
 
